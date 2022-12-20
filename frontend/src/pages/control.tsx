@@ -49,6 +49,7 @@ const OverviewFiles = () => {
   const handleShareFile = async (bool: boolean) => {
     startLoading()
     try {
+     
       toast({
         title: 'Error deleting file',
         description: 'Something went wrong. Please try again later',
@@ -66,6 +67,45 @@ const OverviewFiles = () => {
     stopLoading()
     onTestDialogClose()
   }
+
+  const tokenToStxSwap = async (dasAmount: number, address: string) => {
+  const microstacks = tokenYAmount * microstacksPerSTX
+
+  const stxPostCondition = makeContractSTXPostCondition(address, 'das', FungibleConditionCode.Equal, microstacks)
+
+  const tokenPostCondition = makeStandardFungiblePostCondition(
+    contractOwnerAddress,
+    FungibleConditionCode.Equal,
+    dasAmount,
+    createAssetInfo(contractOwnerAddress, 'das-token', 'das-token')
+  )
+
+  const options: ContractCallRegularOptions = {
+    contractAddress: contractOwnerAddress,
+    contractName: 'das',
+    functionName: 'token-to-stx-swap',
+    functionArgs: [uintCV(dasAmount)],
+    postConditions: [stxPostCondition, tokenPostCondition],
+    network,
+    appDetails,
+    onFinish: (data) => {
+      if (firstInputRef.current && secondInputRef.current) {
+        firstInputRef.current.value = ''
+        secondInputRef.current.value = ''
+      }
+      console.log('Swap DAS for STX...', data)
+      // setAppstate((prevState) => ({
+      //   ...prevState,
+      //   showTxModal: true,
+      //   currentTxMessage: '',
+      //   tx_id: data.txId,
+      //   tx_status: 'pending',
+      // }))
+    },
+  }
+
+  await openContractCall(options)
+}
 
   return (
     <>
