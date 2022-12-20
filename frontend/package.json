@@ -1,0 +1,37 @@
+{
+  "name": "nft-paper",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint",
+    "chakra:tokens": "chakra-cli tokens src/theme/index.ts"
+  },
+  "dependencies": {
+    "@chakra-ui/react": "^2.2.8",
+    "@emotion/react": "^11.10.0",
+    "@emotion/styled": "^11.10.0",
+    "@stacks/connect": "^6.10.0",
+    "@stacks/storage": "^4.3.4",
+    "date-fns": "^2.29.2",
+    "framer-motion": "^7.2.0",
+    "jotai": "^1.7.8",
+    "next": "12.2.5",
+    "next-seo": "^5.5.0",
+    "react": "18.2.0",
+    "react-dom": "18.2.0",
+    "react-dropzone": "^14.2.2",
+    "react-feather": "^2.0.10"
+  },
+  "devDependencies": {
+    "@chakra-ui/cli": "^2.1.6",
+    "@types/node": "18.7.6",
+    "@types/react": "18.0.17",
+    "@types/react-dom": "18.0.6",
+    "eslint": "8.22.0",
+    "eslint-config-next": "12.2.5",
+    "typescript": "4.7.4"
+  }
+}
