@@ -10,9 +10,6 @@ contract_id = "SP2PABAF9FTAJYNFZH93XENAJ8FVY99RRM50D2JG9.nft-trait"
 [project.cache_location]
 path = ".requirements"
 
-[contracts.dapp]
-path = "contracts/dapp.clar"
-
 [contracts.rolesAccess]
 path = "contracts/rolesAccess.clar"
 
@@ -20,7 +17,7 @@ path = "contracts/rolesAccess.clar"
 path = "contracts/tokenAccess.clar"
 
 [contracts.sip009-nft]
-path = "contracts/sip009-nft.clar"
+path = "contracts/accessNFT.clar"
 
 [repl]
 costs_version = 2
