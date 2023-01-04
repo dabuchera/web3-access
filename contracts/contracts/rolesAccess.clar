@@ -1,8 +1,7 @@
-
 ;;
 ;; rolesAccess.clar
 ;;
-;; A role-based access contract to a material passport stored on Gaia.
+;; A role-based access contract for data stored with Gaia.
 ;;
 ;; This contract is developed for the EC3 2023 conference paper on Web3
 ;; access control in the built environment.
@@ -16,76 +15,92 @@
 (define-constant contract-owner tx-sender)
 
 ;; Define error handling variables
-(define-constant err-unauthorised (err u1000))
-(define-constant err-already-added (err u1001))
-(define-constant err-no-admin (err u1002))
+(define-constant err-not-operable (err u1000))
+(define-constant err-unauthorised (err u1001))
+(define-constant err-already-added (err u1002))
+(define-constant err-no-data-owner (err u1003))
 
 ;; ------------------------------
 ;; data maps and vars
 ;; ------------------------------
 
-;; A map that creates a principal => bool relation to store admin roles.
-(define-map admins principal bool)
+;; A variable that can be set by the contract owner to disable all smart contract functions.
+;; 1 is operable, 0 is not operable
+(define-data-var contract-operable uint u1)
 
-;; A map that creates a principal => bool relation to store stakeholder roles.
-(define-map stakeholders principal bool)
+;; A map that creates a dataURL => data-accessor relation to specify who can access the shared file.
+;; The URL can be maximum 100 units long
+;; The mapping can store maximum 10 addresses per URL
+(define-map data-accessors (string-ascii 100) (list 10 principal))
 
 ;; ------------------------------
 ;; private functions
 ;; ------------------------------
 
-;; A function checking whether the caller is an admin or the owner
-(define-private (check-owner-admin)
-    (ok (asserts! (or (is-eq contract-owner contract-caller) (is-admin contract-caller)) err-unauthorised))
+;; A function checking wether the caller is the contract owner
+(define-private (check-contract-owner)
+    (ok (asserts! (is-eq contract-owner contract-caller) err-unauthorised))
 )
 
-;; A function checking whether the caller is a stakeholder
-(define-private (check-stakeholder)
-    (ok (asserts! (is-stakeholder contract-caller) err-unauthorised))
+;; A function checking wether the contract is operable
+(define-private (check-contract-operable)
+	(ok (asserts! (is-eq (var-get contract-operable) u1) err-not-operable))
+)
+
+;; A function checking whether the caller is a data-accessor
+(define-private (check-data-accessor (url (string-ascii 100)))
+    (ok (asserts! (is-data-accessor url contract-caller) err-unauthorised))
 )
 
 ;; ------------------------------
 ;; public functions
 ;; ------------------------------
 
-;; A function that can add a new admin
-(define-public (add-admin (admin principal))
+;; A function to change the contract-operable variable
+(define-private (change-contract-operable)
     (begin
-        (try! (check-owner-admin))
-        (asserts! (map-insert admins admin true) err-already-added)
-        (ok (print {event: "add-admin", admin: admin}))
+        (try! (check-contract-owner))
+        (if (is-eq (var-get contract-operable) u1)
+            (var-set contract-operable u0)
+            (var-set contract-operable u1) ;;else
+        )
+    (ok (print {event: "state changed", contract-operable: (var-get contract-operable)}))
     )
 )
 
-;; A function that can remove an admin
-(define-public (remove-admin (admin principal))
+;; A function that can add a new data-owner
+;;(define-public (data-owner (data-owner principal))
+;;    (begin
+;;        (try! (check-contract-operable))
+;;        (asserts! (map-insert data-owners data-owner true) err-already-added)
+;;        (ok (print {event: "add-data-owner", data-owner: data-owner}))
+;;    )
+;;)
+
+;; A function that can add a new data-accessor for a given URL
+(define-public (add-data-accessor (url (string-ascii 100)) (address principal))
     (begin
-        (try! (check-owner-admin)) 
-        (asserts! (default-to false (map-get? admins admin)) err-no-admin)
-        (map-set admins admin false)
-        (ok (print {event: "remove-admin", admin: admin}))
+        (try! (check-contract-operable))
+        ;; Here a check that the caller has the right to add this role for this URL. How to do that?
+        ;; Check that the address was not already added
+        (asserts! (not (is-data-accessor url address)) err-already-added)
+        ;; Update the mapping with the appended list
+        (map-set data-accessors url (unwrap-panic (as-max-len? (append (list-of-data-accessors url) address) u10)))
+        (ok (print {event: "new address added as accessor", url: url, data-accessor: address}))
     )
 )
 
-;; A function that can add access to a new stakeholder
-(define-public (add-stakeholder (stakeholder principal))
+;; A function to delete all data-accessor for a given URL
+;; TODO: How to delete only one data-accessor for a given URL?
+(define-public (remove-data-accessors (url (string-ascii 100)))
     (begin
-        (try! (check-owner-admin))
-        (asserts! (map-insert stakeholders stakeholder true) err-already-added)
-        (ok (print {event: "add-stakeholder", stakeholder: stakeholder}))
+        (try! (check-contract-operable))
+        ;; Here a check that the caller has the right to remove these roles for this URL. How to do that?
+        ;; Update the mapping with an empty list
+        (map-set data-accessors url (list))
+        (ok (print {event: "all accessors deleted", url: url}))
     )
 )
-
-;; A function that can remove access from a stakeholder
-(define-public (remove-stakeholder (stakeholder principal))
-    (begin
-        (try! (check-owner-admin))
-        (asserts! (default-to false (map-get? stakeholders stakeholder)) err-no-admin)
-        (map-set stakeholders stakeholder false)
-        (ok (print {event: "remove-stakeholder", stakeholder: stakeholder}))
-    )
-)
-
 
 ;; ------------------------------
 ;; call functions
@@ -96,13 +111,19 @@
 	(print contract-owner)
 )
 
-;; A function to retrieve whether an address is an admin
-(define-read-only (is-admin (admin principal))
-	(default-to false (map-get? admins admin))
+;; A function to retrieve the list of data-accessors for a given URL
+(define-read-only (list-of-data-accessors (url (string-ascii 100)))
+	(default-to (list) (map-get? data-accessors url))
 )
 
-;; A function to retrieve whether an address is a stakeholder
-(define-read-only (is-stakeholder (stakeholder principal))
-	(default-to false (map-get? stakeholders stakeholder))
+;; A function to retrieve the index of an address in a list of data-accessors for a given URL
+(define-read-only (index-of-data-accessor (url (string-ascii 100)) (address principal))
+    ;; u99 means there is no list entry for this address
+    (default-to u99 (index-of (list-of-data-accessors url) address))
 )
 
+;; A function to retrieve wether an address has access for a given URL
+(define-read-only (is-data-accessor (url (string-ascii 100)) (address principal))
+    ;; checks whether the returned value is u99, which means it should return false --> inverse of returned bool
+    (not (is-eq (index-of-data-accessor url address) u99))
+)
