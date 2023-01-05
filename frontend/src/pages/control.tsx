@@ -109,14 +109,15 @@ const OverviewFiles = () => {
 
   return (
     <>
-      <Heading mb={5}>Control Management</Heading>
-      <Text fontSize="xl" mb={5}>
-        Sharing control for all files that allowed sharing
+      <Heading mb={5}>Data Sharing Control</Heading>
+      <Heading mb={5}>dApp Sharing Permissions</Heading>
+      <Text fontSize="xl" mb={2}>
+        Enable this dApp to share data. This does not automatically share your data, but you can then further specify role-based and token-based sharing of individual data.
       </Text>
-      <Flex experimental_spaceX={4}>
+      <Flex experimental_spaceX={4} mb={8}>
         <Box>
           <Button leftIcon={<Icon as={Share2} />} colorScheme="blue" bg="blue.400" size="sm" onClick={onTestDialogOpen}>
-            test
+            Allow Sharing
           </Button>
           <AlertDialog isOpen={isTestDialogOpen} onClose={onTestDialogClose} leastDestructiveRef={testDialogCancelRef}>
             <AlertDialogOverlay>
@@ -141,7 +142,7 @@ const OverviewFiles = () => {
           </AlertDialog>
         </Box>
         <Box p={1}>
-          <Text fontSize="l">Sharing control for all files that allowed sharing</Text>
+          <Text fontSize="l">Allow dApp Data Sharing</Text>
         </Box>
         {/* Delete Button and Modal */}
         {/* <Box>
@@ -177,6 +178,227 @@ const OverviewFiles = () => {
           </AlertDialog>
         </Box> */}
       </Flex>
+      <Text fontSize="xl" mb={2}>
+        Revoke the permission for this dApp to share data. This stops data sharing, regardless of what you have specified below in role-based or token-based sharing.
+      </Text>
+      <Flex experimental_spaceX={4} mb={5}>
+        <Box>
+          <Button leftIcon={<Icon as={Share2} />} colorScheme="blue" bg="blue.400" size="sm" onClick={onTestDialogOpen}>
+            Revoke Sharing
+          </Button>
+          <AlertDialog isOpen={isTestDialogOpen} onClose={onTestDialogClose} leastDestructiveRef={testDialogCancelRef}>
+            <AlertDialogOverlay>
+              <AlertDialogContent>
+                <AlertDialogHeader>Test</AlertDialogHeader>
+                <AlertDialogBody>Are you sure you want to share this file? This operation cannot be undone.</AlertDialogBody>
+                <AlertDialogFooter as={Flex} experimental_spaceX={4}>
+                  <Button onClick={onTestDialogClose} ref={testDialogCancelRef}>
+                    Cancel
+                  </Button>
+                  <Button
+                    colorScheme="blue"
+                    bg="blue.400"
+                    onClick={async () => await handleShareFile(false)}
+                    isLoading={isLoading}
+                  >
+                    test
+                  </Button>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialogOverlay>
+          </AlertDialog>
+        </Box>
+        <Box p={1}>
+          <Text fontSize="l">Revoke dApp Data Sharing</Text>
+        </Box>
+      </Flex>
+
+      <Heading mb={5}>Role-Based Data Sharing</Heading>
+      <Text fontSize="xl" mb={2}>
+        Register Ownership for a Gaia Data-URL. Only when you are the data owner of a Gaia URL you can enable sharing below.
+      </Text>
+      <Flex experimental_spaceX={4} mb={8}>
+        <Box>
+          <Button leftIcon={<Icon as={Share2} />} colorScheme="blue" bg="blue.400" size="sm" onClick={onTestDialogOpen}>
+            add-data-owner
+          </Button>
+          <AlertDialog isOpen={isTestDialogOpen} onClose={onTestDialogClose} leastDestructiveRef={testDialogCancelRef}>
+            <AlertDialogOverlay>
+              <AlertDialogContent>
+                <AlertDialogHeader>Test</AlertDialogHeader>
+                <AlertDialogBody>Are you sure you want to share this file? This operation cannot be undone.</AlertDialogBody>
+                <AlertDialogFooter as={Flex} experimental_spaceX={4}>
+                  <Button onClick={onTestDialogClose} ref={testDialogCancelRef}>
+                    Cancel
+                  </Button>
+                  <Button
+                    colorScheme="blue"
+                    bg="blue.400"
+                    onClick={async () => await handleShareFile(false)}
+                    isLoading={isLoading}
+                  >
+                    test
+                  </Button>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialogOverlay>
+          </AlertDialog>
+        </Box>
+        <Box p={1}>
+          <Text fontSize="l">Register Ownership for this Gaia-URL (input field required here)</Text>
+        </Box>
+      </Flex>
+      <Text fontSize="xl" mb={2}>
+        Register a new address that can access data you are the data owner.
+      </Text>
+      <Flex experimental_spaceX={4} mb={8}>
+        <Box>
+          <Button leftIcon={<Icon as={Share2} />} colorScheme="blue" bg="blue.400" size="sm" onClick={onTestDialogOpen}>
+            add-data-accessor
+          </Button>
+          <AlertDialog isOpen={isTestDialogOpen} onClose={onTestDialogClose} leastDestructiveRef={testDialogCancelRef}>
+            <AlertDialogOverlay>
+              <AlertDialogContent>
+                <AlertDialogHeader>Test</AlertDialogHeader>
+                <AlertDialogBody>Are you sure you want to share this file? This operation cannot be undone.</AlertDialogBody>
+                <AlertDialogFooter as={Flex} experimental_spaceX={4}>
+                  <Button onClick={onTestDialogClose} ref={testDialogCancelRef}>
+                    Cancel
+                  </Button>
+                  <Button
+                    colorScheme="blue"
+                    bg="blue.400"
+                    onClick={async () => await handleShareFile(false)}
+                    isLoading={isLoading}
+                  >
+                    test
+                  </Button>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialogOverlay>
+          </AlertDialog>
+        </Box>
+        <Box p={1}>
+          <Text fontSize="l">Register new address (input field required here) that can access this Gaia-URL (input field required here)</Text>
+        </Box>
+      </Flex>
+      <Text fontSize="xl" mb={2}>
+        Revoke sharing for all addresses that can access data you are the data owner.
+      </Text>
+      <Flex experimental_spaceX={4} mb={8}>
+        <Box>
+          <Button leftIcon={<Icon as={Share2} />} colorScheme="blue" bg="blue.400" size="sm" onClick={onTestDialogOpen}>
+            remove-data-accessors
+          </Button>
+          <AlertDialog isOpen={isTestDialogOpen} onClose={onTestDialogClose} leastDestructiveRef={testDialogCancelRef}>
+            <AlertDialogOverlay>
+              <AlertDialogContent>
+                <AlertDialogHeader>Test</AlertDialogHeader>
+                <AlertDialogBody>Are you sure you want to share this file? This operation cannot be undone.</AlertDialogBody>
+                <AlertDialogFooter as={Flex} experimental_spaceX={4}>
+                  <Button onClick={onTestDialogClose} ref={testDialogCancelRef}>
+                    Cancel
+                  </Button>
+                  <Button
+                    colorScheme="blue"
+                    bg="blue.400"
+                    onClick={async () => await handleShareFile(false)}
+                    isLoading={isLoading}
+                  >
+                    test
+                  </Button>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialogOverlay>
+          </AlertDialog>
+        </Box>
+        <Box p={1}>
+          <Text fontSize="l">Remove all addresses that can access your Gaia-URL (input field required here)</Text>
+        </Box>
+      </Flex>
+      <Text fontSize="xl" mb={2}>
+        You want to check whether this worked?
+      </Text>
+      <Flex experimental_spaceX={4} mb={2}>
+        <Box>
+          <Button leftIcon={<Icon as={Share2} />} colorScheme="blue" bg="blue.400" size="sm" onClick={onTestDialogOpen}>
+            get-data-owner
+          </Button>
+          <AlertDialog isOpen={isTestDialogOpen} onClose={onTestDialogClose} leastDestructiveRef={testDialogCancelRef}>
+            <AlertDialogOverlay>
+              <AlertDialogContent>
+                <AlertDialogHeader>Test</AlertDialogHeader>
+                <AlertDialogBody>Are you sure you want to share this file? This operation cannot be undone.</AlertDialogBody>
+                <AlertDialogFooter as={Flex} experimental_spaceX={4}>
+                  <Button onClick={onTestDialogClose} ref={testDialogCancelRef}>
+                    Cancel
+                  </Button>
+                  <Button
+                    colorScheme="blue"
+                    bg="blue.400"
+                    onClick={async () => await handleShareFile(false)}
+                    isLoading={isLoading}
+                  >
+                    test
+                  </Button>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialogOverlay>
+          </AlertDialog>
+        </Box>
+        <Box p={1}>
+          <Text fontSize="l">Check the data owner role of a Gaia-URL (input field required here)</Text>
+        </Box>
+      </Flex>
+      <Flex experimental_spaceX={4} mb={5}>
+        <Box>
+          <Button leftIcon={<Icon as={Share2} />} colorScheme="blue" bg="blue.400" size="sm" onClick={onTestDialogOpen}>
+            list-of-data-accessors
+          </Button>
+          <AlertDialog isOpen={isTestDialogOpen} onClose={onTestDialogClose} leastDestructiveRef={testDialogCancelRef}>
+            <AlertDialogOverlay>
+              <AlertDialogContent>
+                <AlertDialogHeader>Test</AlertDialogHeader>
+                <AlertDialogBody>Are you sure you want to share this file? This operation cannot be undone.</AlertDialogBody>
+                <AlertDialogFooter as={Flex} experimental_spaceX={4}>
+                  <Button onClick={onTestDialogClose} ref={testDialogCancelRef}>
+                    Cancel
+                  </Button>
+                  <Button
+                    colorScheme="blue"
+                    bg="blue.400"
+                    onClick={async () => await handleShareFile(false)}
+                    isLoading={isLoading}
+                  >
+                    test
+                  </Button>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialogOverlay>
+          </AlertDialog>
+        </Box>
+        <Box p={1}>
+          <Text fontSize="l">Check the data accessor roles of a Gaia-URL (input field required here)</Text>
+        </Box>
+      </Flex>
+
+      <Heading mb={5}>Token-Based Data Sharing</Heading>
+      <Text fontSize="xl" mb={2}>
+        Mint Ownership NFT for gaiaURL
+      </Text>
+
+      <Text fontSize="xl" mb={2}>
+        Mint Access Tokens to access gaiaURL if you own the OwnershipNFT.
+      </Text>
+
+      <Text fontSize="xl" mb={2}>
+        Enable/Disable sharing for a gaiaURL with tokens.
+      </Text>
+
+      <Text fontSize="xl" mb={2}>
+        Read functions to check whether enabled/disabled. Number of tokens.
+      </Text>
+
       <>
         {publicMetadata ? (
           <>
