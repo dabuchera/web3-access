@@ -19,21 +19,21 @@ plan:
         - contract-publish:
             contract-name: sip009-nft
             expected-sender: ST1PQHQKV0RJXZFY1DGX8MNSNYVE3VGZJSRTPGZGM
-            cost: 12160
+            cost: 12190
             path: contracts/accessNFT.clar
-            anchor-block-only: true
-            clarity-version: 1
-        - contract-publish:
-            contract-name: tokenAccess
-            expected-sender: ST1PQHQKV0RJXZFY1DGX8MNSNYVE3VGZJSRTPGZGM
-            cost: 25270
-            path: contracts/tokenAccess.clar
             anchor-block-only: true
             clarity-version: 1
         - contract-publish:
             contract-name: rolesAccess
             expected-sender: ST1PQHQKV0RJXZFY1DGX8MNSNYVE3VGZJSRTPGZGM
-            cost: 32740
+            cost: 66330
             path: contracts/rolesAccess.clar
+            anchor-block-only: true
+            clarity-version: 1
+        - contract-publish:
+            contract-name: tokenAccess
+            expected-sender: ST1PQHQKV0RJXZFY1DGX8MNSNYVE3VGZJSRTPGZGM
+            cost: 25150
+            path: contracts/tokenAccess.clar
             anchor-block-only: true
             clarity-version: 1

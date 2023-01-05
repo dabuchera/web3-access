@@ -33,7 +33,7 @@ const NAV_ITEMS: Array<NavItem> = [
     icon: Info,
   },
   {
-    label: 'Control Mgmt',
+    label: 'Data Sharing Control',
     href: '/control',
     icon: UserCheck,
   },

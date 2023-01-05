@@ -18,7 +18,8 @@
 (define-constant err-not-operable (err u1000))
 (define-constant err-unauthorised (err u1001))
 (define-constant err-already-added (err u1002))
-(define-constant err-no-data-owner (err u1003))
+(define-constant err-already-removed (err u1003))
+(define-constant err-already-ten-entries (err u1004))
 
 ;; ------------------------------
 ;; data maps and vars
@@ -27,6 +28,9 @@
 ;; A variable that can be set by the contract owner to disable all smart contract functions.
 ;; 1 is operable, 0 is not operable
 (define-data-var contract-operable uint u1)
+
+;; A map that creates a dataURL => data-owner relation to verify who can add new data-accessors
+(define-map data-owners (string-ascii 100) principal)
 
 ;; A map that creates a dataURL => data-accessor relation to specify who can access the shared file.
 ;; The URL can be maximum 100 units long
@@ -45,6 +49,11 @@
 ;; A function checking wether the contract is operable
 (define-private (check-contract-operable)
 	(ok (asserts! (is-eq (var-get contract-operable) u1) err-not-operable))
+)
+
+;; A function checking whether the caller is a data-owner
+(define-private (check-data-owner (url (string-ascii 100)))
+    (ok (asserts! (is-eq (get-data-owner url) contract-caller) err-unauthorised))
 )
 
 ;; A function checking whether the caller is a data-accessor
@@ -68,22 +77,42 @@
     )
 )
 
-;; A function that can add a new data-owner
-;;(define-public (data-owner (data-owner principal))
-;;    (begin
-;;        (try! (check-contract-operable))
-;;        (asserts! (map-insert data-owners data-owner true) err-already-added)
-;;        (ok (print {event: "add-data-owner", data-owner: data-owner}))
-;;    )
-;;)
+;; A function to register a new data-owner for a dataURL
+;; For now everyone can register any so far unregistered dataURL.
+;; Is there a way to proof ownership of a dataURL?
+(define-public (add-data-owner (url (string-ascii 100)))
+    (begin
+        (try! (check-contract-operable))
+        ;; Add new entry only if the url is unused
+        (asserts! (map-insert data-owners url contract-caller) err-already-added)
+        (ok (print {event: "owner added for URL", data-owner: contract-caller, url: url}))
+    )
+)
+
+;; A function to remove a data-owner for a dataURL
+;; For now everyone can register any so far unregistered dataURL.
+;; Is there a way to proof ownership of a dataURL?
+(define-public (remove-data-owner (url (string-ascii 100)))
+    (begin
+        (try! (check-contract-operable))
+        ;; Check that it is the current data-owner calling this function
+        (try! (check-data-owner url))
+        ;; Remove entry only if the url is unused
+        (asserts! (map-delete data-owners url) err-already-removed)
+        (ok (print {event: "owner removed for URL", data-owner: contract-caller, url: url}))
+    )
+)
 
 ;; A function that can add a new data-accessor for a given URL
 (define-public (add-data-accessor (url (string-ascii 100)) (address principal))
     (begin
         (try! (check-contract-operable))
-        ;; Here a check that the caller has the right to add this role for this URL. How to do that?
+        ;; Check that the caller has the right to add this role for this URL.
+        (try! (check-data-owner url))
         ;; Check that the address was not already added
         (asserts! (not (is-data-accessor url address)) err-already-added)
+        ;; Check that there is not already 10 data accessors for this URL
+        (asserts! (< (length-list-of-data-accessors url) u10) err-already-ten-entries)
         ;; Update the mapping with the appended list
         (map-set data-accessors url (unwrap-panic (as-max-len? (append (list-of-data-accessors url) address) u10)))
         (ok (print {event: "new address added as accessor", url: url, data-accessor: address}))
@@ -95,9 +124,10 @@
 (define-public (remove-data-accessors (url (string-ascii 100)))
     (begin
         (try! (check-contract-operable))
-        ;; Here a check that the caller has the right to remove these roles for this URL. How to do that?
-        ;; Update the mapping with an empty list
-        (map-set data-accessors url (list))
+        ;; Check that the caller has the right to add this role for this URL.
+        (try! (check-data-owner url))
+        ;; Remove entry only if the url is unused
+        (asserts! (map-delete data-accessors url) err-already-removed)
         (ok (print {event: "all accessors deleted", url: url}))
     )
 )
@@ -111,14 +141,24 @@
 	(print contract-owner)
 )
 
+;; A function to retrieve the data-owner for a given URL
+(define-read-only (get-data-owner (url (string-ascii 100)))
+	(unwrap-panic (map-get? data-owners url))
+)
+
 ;; A function to retrieve the list of data-accessors for a given URL
 (define-read-only (list-of-data-accessors (url (string-ascii 100)))
 	(default-to (list) (map-get? data-accessors url))
 )
 
+;; A function to retrieve the list-length of data-accessors for a given URL
+(define-read-only (length-list-of-data-accessors (url (string-ascii 100)))
+    (len (list-of-data-accessors url))
+)
+
 ;; A function to retrieve the index of an address in a list of data-accessors for a given URL
 (define-read-only (index-of-data-accessor (url (string-ascii 100)) (address principal))
-    ;; u99 means there is no list entry for this address
+    ;; u99 means there is no list entry for this address (none)
     (default-to u99 (index-of (list-of-data-accessors url) address))
 )
 

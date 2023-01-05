@@ -7,7 +7,7 @@
 
 (define-constant contract-owner tx-sender)
 
-(define-constant err-owner-only (err u100))
+;; (define-constant err-owner-only (err u100))
 (define-constant err-token-id-failure (err u101))
 (define-constant err-not-token-owner (err u102))
 

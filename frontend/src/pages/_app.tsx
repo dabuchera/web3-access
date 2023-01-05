@@ -34,17 +34,34 @@ function MyApp({ Component, pageProps }: AppProps) {
         ) : (
           <>
             <Logo height={128} width={128} />
-            <Heading>NFT-Paper</Heading>
+            <Heading>Web3 Data Access dApp</Heading>
             <Text as="h2" fontSize="xl" textAlign="center" mt={4} mb={16}>
-              This prototype stores your data off-chain using{' '}
+              This prototype developed for our EC3 paper stores your data off-chain using{' '}
               <Link href="https://docs.stacks.co/docs/gaia/" isExternal color="blue.400">
                 Gaia
               </Link>
-              . Files are encrypted by default and can only be decrypted by your wallet. You can also store public files,
+              . Files are private and encrypted by default and can only be decrypted by connecting your wallet. You can also store public files,
               which will be stored in an unencrypted form.
             </Text>
 
-            <Text fontSize="xl">Please connect your wallet to continue</Text>
+            <Text as="h2" fontSize="xl" textAlign="center" mt={4} mb={16}>
+              You can then decide to share your private data, either with a role-based or token-based access mechanism using smart contracts on the {' '}
+              <Link href="https://www.stacks.co/" isExternal color="blue.400">
+                Stacks Blockchain
+              </Link>
+              . The protoype runs on the Stacks testnet. You need to request test-STX from the {' '}
+              <Link href="https://explorer.stacks.co/sandbox/faucet?chain=testnet" isExternal color="blue.400">
+                faucet
+              </Link> to pay for the transaction fees. 
+
+            </Text>
+
+            <Text fontSize="xl">
+              Please connect your Stacks {' '}
+              <Link href="https://wallet.hiro.so/" isExternal color="blue.400">
+                wallet
+              </Link> to continue:
+            </Text>
             <Button
               mt={4}
               onClick={authenticate}
