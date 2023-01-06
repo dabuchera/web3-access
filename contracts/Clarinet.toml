@@ -16,8 +16,11 @@ path = "contracts/rolesAccess.clar"
 [contracts.tokenAccess]
 path = "contracts/tokenAccess.clar"
 
-[contracts.sip009-nft]
+[contracts.accessNFT]
 path = "contracts/accessNFT.clar"
+
+[contracts.ownershipNFT]
+path = "contracts/ownershipNFT.clar"
 
 [repl]
 costs_version = 2

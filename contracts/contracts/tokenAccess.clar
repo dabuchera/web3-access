@@ -19,7 +19,8 @@
 (define-constant err-not-operable (err u1000))
 (define-constant err-unauthorised (err u1001))
 (define-constant err-already-added (err u1002))
-(define-constant err-already-removed (err u1003))
+(define-constant err-no-owner-yet (err u1003))
+(define-constant err-already-ten-entries (err u1004))
 
 ;; ------------------------------
 ;; data maps and vars
@@ -29,12 +30,12 @@
 ;; 1 is operable, 0 is not operable
 (define-data-var contract-operable uint u1)
 
-;; A map that creates a dataURL => nft-address relation to verify who can mint access tokens for a given URL
-(define-map data-nft (string-ascii 100) principal)
+;; A map that creates a dataURL => nft-uri relation to verify which ownershipNFT can mint access tokens for a given URL
+(define-map data-ownership-nfts (string-ascii 100) uint)
 
-;; A map that creates a dataURL => {token address / token number / bool} relation to specify which token has access,
-;; the number of tokens created, and whether token access is enabled
-(define-map token-data-access (string-ascii 100) {token-address: principal, token-number: uint, access-enabled: bool})
+;; A map that creates a dataURL => {token uri list / bool} relation to specify which access-token uri's have access
+;; and whether token access is enabled. There can be maximum 10 access NFTs per data-url.
+(define-map data-access-nfts (string-ascii 100) {token-uri: (list 10 uint), access-enabled: bool})
 
 ;; ------------------------------
 ;; private functions
@@ -50,7 +51,10 @@
 	(ok (asserts! (is-eq (var-get contract-operable) u1) err-not-operable))
 )
 
-;; TODO: A function checking whether the caller is the NFT owner
+;; A function comparing the ownershipNFT owner with the caller
+(define-private (check-nft-owner (url (string-ascii 100)))
+	(ok (asserts! (is-eq (unwrap-panic (get-ownerhsip-nft-owner url)) contract-caller) err-unauthorised))
+)
 
 ;; ------------------------------
 ;; public functions
@@ -68,30 +72,89 @@
     )
 )
 
-;; TODO: A function to mint an NFT for a dataURL
-;; Is there a way to proof ownership of a dataURL?
-;; Mint NFT and store address in the data-nft mapping
+;; A function to mint an NFT for a dataURL and store uri in the data-ownership-nfts mapping
+(define-public (mint-ownership-nft (url (string-ascii 100)))
+    (begin
+        (try! (check-contract-operable))
+        ;; Check that the caller is not an intermediate contract
+        (asserts! (is-eq tx-sender contract-caller) err-unauthorised)
+        ;; Check that the url does not already have an NFT associated with it
+        (asserts! (is-none (map-get? data-ownership-nfts url)) err-already-added)
+        ;; Mint ownershipNFT and add new entry (mint returns the minted token URI)
+        (map-set data-ownership-nfts url (try! (contract-call? .ownershipNFT mint tx-sender)))
+        (ok (print {event: "new ownership-nft minted", owner: tx-sender, uri: (map-get? data-ownership-nfts url), url: url}))
+    )
+)
 
-;; TODO: A function to mint data access tokens
-;; Check whether the caller is the NFT owner
-;; Mint token and store details in token-data-access mapping
-;; Access is default true
-;; Can function overwrite existing entry?
+;; A function to mint a data access NFT for a dataURL and store the info in the data-access-nfts mapping
+(define-public (mint-data-access-nft (url (string-ascii 100)))
+    (begin
+        (try! (check-contract-operable))
+        ;; Check that the caller is the owner of the correct ownershipNFT
+        (try! (check-nft-owner url))
+        ;; Check that the url does not already have 10 NFTs associated with it
+        (asserts! (< (length-list-of-access-nft url) u10) err-already-ten-entries)
+        ;; Mint ownershipNFT and add new entry (mint returns the minted token URI). Access default is true.
+        (map-set data-access-nfts url {token-uri: (unwrap-panic (as-max-len? (append (list-of-access-nft url) (try! (contract-call? .accessNFT mint contract-caller))) u10)), access-enabled: true})
+        (ok (print {event: "new access-nft minted", owner: tx-sender, uri: (map-get? data-access-nfts url), url: url}))
+    )
+)
 
-;; TODO: A function to disable/enable token access for a dataURL
-;; Check wether caller is the NFT owner
+;; A function to disable/enable token access for a given URL
+(define-public (change-access-nft-activation (url (string-ascii 100)))
+    (begin
+        (try! (check-contract-operable))
+        ;; Check that the caller is the owner of the correct ownershipNFT
+        (try! (check-nft-owner url))
+        ;; Check wether access is enabled or disabled and change the state
+        (if (is-eq (access-nft-enabled url) true)
+            (map-set data-access-nfts url {token-uri: (list-of-access-nft url), access-enabled: false})
+            (map-set data-access-nfts url {token-uri: (list-of-access-nft url), access-enabled: true}) ;;else
+        )
+        (ok (print {event: "access-enabled changed", access-enabled: (access-nft-enabled url), url: url}))
+    )
+)
 
 ;; ------------------------------
 ;; call functions
 ;; ------------------------------
 
 ;; A function to retrieve the contract owner
-(define-read-only (whoIsOwner)
+(define-read-only (who-is-contract-owner)
 	(print contract-owner)
 )
 
-;; TODO: a function to retrieve the needed NFT address for a given URL
+;; A function to retrieve the ownership-nft uri for a given URL
+(define-read-only (which-ownership-nft (url (string-ascii 100)))
+	(unwrap-panic (map-get? data-ownership-nfts url))
+)
 
-;; TODO: a function to retrieve the access token details for a given URL
+;; A function to retrieve the owner of a ownership-nft url, if none it returns an error
+(define-read-only (get-ownerhsip-nft-owner (url (string-ascii 100)))
+    (let ((owner (unwrap! (contract-call? .ownershipNFT get-owner (which-ownership-nft url)) err-no-owner-yet)))
+        (ok (unwrap-panic owner))
+    )
+)
 
-;; TODO: a function to retrieve whether access is enabled for a given URL
+;; A function to retrieve the list of access-nfts for a given URL
+(define-read-only (list-of-access-nft (url (string-ascii 100)))
+	(get token-uri (default-to {token-uri: (list), access-enabled: false} (map-get? data-access-nfts url)))
+)
+
+;; A function to retrieve the list-length of access-nfts for a given URL
+(define-read-only (length-list-of-access-nft (url (string-ascii 100)))
+    (len (list-of-access-nft url))
+)
+
+;; A function to retrieve whether access is enabled for a given URL
+(define-read-only (access-nft-enabled (url (string-ascii 100)))
+	(get access-enabled (default-to {token-uri: (list), access-enabled: false} (map-get? data-access-nfts url)))
+)
+
+;; A function to retrieve the owner of a access-nft uri, if none it returns an error
+;; The uri has to be retrieved from the list of uri for a given url, calling the "list-of-access-nft" function
+(define-read-only (get-access-nft-owner (uri uint))
+    (let ((owner (unwrap! (contract-call? .accessNFT get-owner uri) err-no-owner-yet)))
+        (ok (unwrap-panic owner))
+    )
+)
