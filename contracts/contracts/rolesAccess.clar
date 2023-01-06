@@ -78,11 +78,11 @@
 )
 
 ;; A function to register a new data-owner for a dataURL
-;; For now everyone can register any so far unregistered dataURL.
-;; Is there a way to proof ownership of a dataURL?
 (define-public (add-data-owner (url (string-ascii 100)))
     (begin
         (try! (check-contract-operable))
+        ;; Check that the caller is not an intermediate contract
+        (asserts! (is-eq tx-sender contract-caller) err-unauthorised)
         ;; Add new entry only if the url is unused
         (asserts! (map-insert data-owners url contract-caller) err-already-added)
         (ok (print {event: "owner added for URL", data-owner: contract-caller, url: url}))
@@ -90,8 +90,6 @@
 )
 
 ;; A function to remove a data-owner for a dataURL
-;; For now everyone can register any so far unregistered dataURL.
-;; Is there a way to proof ownership of a dataURL?
 (define-public (remove-data-owner (url (string-ascii 100)))
     (begin
         (try! (check-contract-operable))
@@ -137,7 +135,7 @@
 ;; ------------------------------
 
 ;; A function to retrieve the contract owner
-(define-read-only (whoIsOwner)
+(define-read-only (who-is-contract-owner)
 	(print contract-owner)
 )
 
