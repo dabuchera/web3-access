@@ -249,7 +249,7 @@ const OverviewFiles = () => {
         </Box>
       </Flex>
       <Text fontSize="xl" mb={2}>
-        Register a new address that can access data you are the data owner.
+        Register a new address that can access data you are the data owner. (Maximum 10)
       </Text>
       <Flex experimental_spaceX={4} mb={8}>
         <Box>
@@ -386,18 +386,201 @@ const OverviewFiles = () => {
       <Text fontSize="xl" mb={2}>
         Mint Ownership NFT for gaiaURL
       </Text>
-
+      <Flex experimental_spaceX={4} mb={8}>
+        <Box>
+          <Button leftIcon={<Icon as={Share2} />} colorScheme="blue" bg="blue.400" size="sm" onClick={onTestDialogOpen}>
+            mint-ownership-nft
+          </Button>
+          <AlertDialog isOpen={isTestDialogOpen} onClose={onTestDialogClose} leastDestructiveRef={testDialogCancelRef}>
+            <AlertDialogOverlay>
+              <AlertDialogContent>
+                <AlertDialogHeader>Test</AlertDialogHeader>
+                <AlertDialogBody>Are you sure you want to share this file? This operation cannot be undone.</AlertDialogBody>
+                <AlertDialogFooter as={Flex} experimental_spaceX={4}>
+                  <Button onClick={onTestDialogClose} ref={testDialogCancelRef}>
+                    Cancel
+                  </Button>
+                  <Button
+                    colorScheme="blue"
+                    bg="blue.400"
+                    onClick={async () => await handleShareFile(false)}
+                    isLoading={isLoading}
+                  >
+                    test
+                  </Button>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialogOverlay>
+          </AlertDialog>
+        </Box>
+        <Box p={1}>
+          <Text fontSize="l">Mint ownership nft for this Gaia-URL (input field required here)</Text>
+        </Box>
+      </Flex>
       <Text fontSize="xl" mb={2}>
-        Mint Access Tokens to access gaiaURL if you own the OwnershipNFT.
+        Mint Access Tokens that you can send to other addresses to access a gaiaURL. You need to own the OwnershipNFT for this Gaia-URL.
       </Text>
-
+      <Flex experimental_spaceX={4} mb={8}>
+        <Box>
+          <Button leftIcon={<Icon as={Share2} />} colorScheme="blue" bg="blue.400" size="sm" onClick={onTestDialogOpen}>
+            mint-data-access-nft
+          </Button>
+          <AlertDialog isOpen={isTestDialogOpen} onClose={onTestDialogClose} leastDestructiveRef={testDialogCancelRef}>
+            <AlertDialogOverlay>
+              <AlertDialogContent>
+                <AlertDialogHeader>Test</AlertDialogHeader>
+                <AlertDialogBody>Are you sure you want to share this file? This operation cannot be undone.</AlertDialogBody>
+                <AlertDialogFooter as={Flex} experimental_spaceX={4}>
+                  <Button onClick={onTestDialogClose} ref={testDialogCancelRef}>
+                    Cancel
+                  </Button>
+                  <Button
+                    colorScheme="blue"
+                    bg="blue.400"
+                    onClick={async () => await handleShareFile(false)}
+                    isLoading={isLoading}
+                  >
+                    test
+                  </Button>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialogOverlay>
+          </AlertDialog>
+        </Box>
+        <Box p={1}>
+          <Text fontSize="l">Mint data access nft for this Gaia-URL (input field required here) (Maximum 10)</Text>
+        </Box>
+      </Flex>
       <Text fontSize="xl" mb={2}>
-        Enable/Disable sharing for a gaiaURL with tokens.
+        Enable/disable sharing for a gaiaURL that you minted access-NFTs for.
       </Text>
-
+      <Flex experimental_spaceX={4} mb={8}>
+        <Box>
+          <Button leftIcon={<Icon as={Share2} />} colorScheme="blue" bg="blue.400" size="sm" onClick={onTestDialogOpen}>
+            change-access-nft-activation
+          </Button>
+          <AlertDialog isOpen={isTestDialogOpen} onClose={onTestDialogClose} leastDestructiveRef={testDialogCancelRef}>
+            <AlertDialogOverlay>
+              <AlertDialogContent>
+                <AlertDialogHeader>Test</AlertDialogHeader>
+                <AlertDialogBody>Are you sure you want to share this file? This operation cannot be undone.</AlertDialogBody>
+                <AlertDialogFooter as={Flex} experimental_spaceX={4}>
+                  <Button onClick={onTestDialogClose} ref={testDialogCancelRef}>
+                    Cancel
+                  </Button>
+                  <Button
+                    colorScheme="blue"
+                    bg="blue.400"
+                    onClick={async () => await handleShareFile(false)}
+                    isLoading={isLoading}
+                  >
+                    test
+                  </Button>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialogOverlay>
+          </AlertDialog>
+        </Box>
+        <Box p={1}>
+          <Text fontSize="l">Enable/disable NFT access for this Gaia-URL (input field required here)</Text>
+        </Box>
+      </Flex>
       <Text fontSize="xl" mb={2}>
-        Read functions to check whether enabled/disabled. Number of tokens.
+        You want to check whether this worked?
       </Text>
+      <Flex experimental_spaceX={4} mb={2}>
+        <Box>
+          <Button leftIcon={<Icon as={Share2} />} colorScheme="blue" bg="blue.400" size="sm" onClick={onTestDialogOpen}>
+            get-ownerhsip-nft-owner
+          </Button>
+          <AlertDialog isOpen={isTestDialogOpen} onClose={onTestDialogClose} leastDestructiveRef={testDialogCancelRef}>
+            <AlertDialogOverlay>
+              <AlertDialogContent>
+                <AlertDialogHeader>Test</AlertDialogHeader>
+                <AlertDialogBody>Are you sure you want to share this file? This operation cannot be undone.</AlertDialogBody>
+                <AlertDialogFooter as={Flex} experimental_spaceX={4}>
+                  <Button onClick={onTestDialogClose} ref={testDialogCancelRef}>
+                    Cancel
+                  </Button>
+                  <Button
+                    colorScheme="blue"
+                    bg="blue.400"
+                    onClick={async () => await handleShareFile(false)}
+                    isLoading={isLoading}
+                  >
+                    test
+                  </Button>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialogOverlay>
+          </AlertDialog>
+        </Box>
+        <Box p={1}>
+          <Text fontSize="l">Retrieve the ownership-NFT owner for a Gaia-URL (input field required here)</Text>
+        </Box>
+      </Flex>
+      <Flex experimental_spaceX={4} mb={2}>
+        <Box>
+          <Button leftIcon={<Icon as={Share2} />} colorScheme="blue" bg="blue.400" size="sm" onClick={onTestDialogOpen}>
+            list-of-access-nft
+          </Button>
+          <AlertDialog isOpen={isTestDialogOpen} onClose={onTestDialogClose} leastDestructiveRef={testDialogCancelRef}>
+            <AlertDialogOverlay>
+              <AlertDialogContent>
+                <AlertDialogHeader>Test</AlertDialogHeader>
+                <AlertDialogBody>Are you sure you want to share this file? This operation cannot be undone.</AlertDialogBody>
+                <AlertDialogFooter as={Flex} experimental_spaceX={4}>
+                  <Button onClick={onTestDialogClose} ref={testDialogCancelRef}>
+                    Cancel
+                  </Button>
+                  <Button
+                    colorScheme="blue"
+                    bg="blue.400"
+                    onClick={async () => await handleShareFile(false)}
+                    isLoading={isLoading}
+                  >
+                    test
+                  </Button>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialogOverlay>
+          </AlertDialog>
+        </Box>
+        <Box p={1}>
+          <Text fontSize="l">Retrieve all access-NFT uri's active for a Gaia-URL (input field required here)</Text>
+        </Box>
+      </Flex>
+      <Flex experimental_spaceX={4} mb={2}>
+        <Box>
+          <Button leftIcon={<Icon as={Share2} />} colorScheme="blue" bg="blue.400" size="sm" onClick={onTestDialogOpen}>
+            get-access-nft-owner
+          </Button>
+          <AlertDialog isOpen={isTestDialogOpen} onClose={onTestDialogClose} leastDestructiveRef={testDialogCancelRef}>
+            <AlertDialogOverlay>
+              <AlertDialogContent>
+                <AlertDialogHeader>Test</AlertDialogHeader>
+                <AlertDialogBody>Are you sure you want to share this file? This operation cannot be undone.</AlertDialogBody>
+                <AlertDialogFooter as={Flex} experimental_spaceX={4}>
+                  <Button onClick={onTestDialogClose} ref={testDialogCancelRef}>
+                    Cancel
+                  </Button>
+                  <Button
+                    colorScheme="blue"
+                    bg="blue.400"
+                    onClick={async () => await handleShareFile(false)}
+                    isLoading={isLoading}
+                  >
+                    test
+                  </Button>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialogOverlay>
+          </AlertDialog>
+        </Box>
+        <Box p={1}>
+          <Text fontSize="l">Retrieve the access-NFT owner for a given uri (get them from the list above)</Text>
+        </Box>
+      </Flex>
 
       <>
         {publicMetadata ? (
