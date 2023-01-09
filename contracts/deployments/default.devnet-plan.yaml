@@ -19,28 +19,28 @@ plan:
         - contract-publish:
             contract-name: ownershipNFT
             expected-sender: ST1PQHQKV0RJXZFY1DGX8MNSNYVE3VGZJSRTPGZGM
-            cost: 12370
+            cost: 10780
             path: contracts/ownershipNFT.clar
+            anchor-block-only: true
+            clarity-version: 1
+        - contract-publish:
+            contract-name: accessNFT
+            expected-sender: ST1PQHQKV0RJXZFY1DGX8MNSNYVE3VGZJSRTPGZGM
+            cost: 10600
+            path: contracts/accessNFT.clar
             anchor-block-only: true
             clarity-version: 1
         - contract-publish:
             contract-name: tokenAccess
             expected-sender: ST1PQHQKV0RJXZFY1DGX8MNSNYVE3VGZJSRTPGZGM
-            cost: 33630
+            cost: 68310
             path: contracts/tokenAccess.clar
             anchor-block-only: true
             clarity-version: 1
         - contract-publish:
             contract-name: rolesAccess
             expected-sender: ST1PQHQKV0RJXZFY1DGX8MNSNYVE3VGZJSRTPGZGM
-            cost: 66340
+            cost: 65460
             path: contracts/rolesAccess.clar
-            anchor-block-only: true
-            clarity-version: 1
-        - contract-publish:
-            contract-name: accessNFT
-            expected-sender: ST1PQHQKV0RJXZFY1DGX8MNSNYVE3VGZJSRTPGZGM
-            cost: 12190
-            path: contracts/accessNFT.clar
             anchor-block-only: true
             clarity-version: 1
