@@ -27,6 +27,14 @@ import { useStorage } from '@/hooks/use-storage'
 import { RefreshCcw, Share2, Trash2 } from 'react-feather'
 import NextLink from 'next/link'
 import useLoading from '@/hooks/use-loading'
+import { Input } from '@chakra-ui/react'
+import {
+  NumberInput,
+  NumberInputField,
+  NumberInputStepper,
+  NumberIncrementStepper,
+  NumberDecrementStepper,
+} from '@chakra-ui/react'
 
 const OverviewFiles = () => {
   const { refreshMetadata, publicMetadata, isMetadataRefreshing } = useStorage()
@@ -82,9 +90,9 @@ const OverviewFiles = () => {
 
   const options: ContractCallRegularOptions = {
     contractAddress: contractOwnerAddress,
-    contractName: 'das',
-    functionName: 'token-to-stx-swap',
-    functionArgs: [uintCV(dasAmount)],
+    contractName: 'rolesAccess',
+    functionName: 'add-data-owner',
+    functionArgs: [String(url)],
     postConditions: [stxPostCondition, tokenPostCondition],
     network,
     appDetails,
@@ -93,7 +101,7 @@ const OverviewFiles = () => {
         firstInputRef.current.value = ''
         secondInputRef.current.value = ''
       }
-      console.log('Swap DAS for STX...', data)
+      console.log('Ownership registered for a new URL', data)
       // setAppstate((prevState) => ({
       //   ...prevState,
       //   showTxModal: true,
@@ -123,7 +131,7 @@ const OverviewFiles = () => {
             <AlertDialogOverlay>
               <AlertDialogContent>
                 <AlertDialogHeader>Test</AlertDialogHeader>
-                <AlertDialogBody>Are you sure you want to share this file? This operation cannot be undone.</AlertDialogBody>
+                <AlertDialogBody>Are you sure you want to share this file?</AlertDialogBody>
                 <AlertDialogFooter as={Flex} experimental_spaceX={4}>
                   <Button onClick={onTestDialogClose} ref={testDialogCancelRef}>
                     Cancel
@@ -190,7 +198,7 @@ const OverviewFiles = () => {
             <AlertDialogOverlay>
               <AlertDialogContent>
                 <AlertDialogHeader>Test</AlertDialogHeader>
-                <AlertDialogBody>Are you sure you want to share this file? This operation cannot be undone.</AlertDialogBody>
+                <AlertDialogBody>Are you sure you want to share this file?</AlertDialogBody>
                 <AlertDialogFooter as={Flex} experimental_spaceX={4}>
                   <Button onClick={onTestDialogClose} ref={testDialogCancelRef}>
                     Cancel
@@ -215,18 +223,19 @@ const OverviewFiles = () => {
 
       <Heading mb={5}>Role-Based Data Sharing</Heading>
       <Text fontSize="xl" mb={2}>
-        Register Ownership for a Gaia Data-URL. Only when you are the data owner of a Gaia URL you can enable sharing below.
+        Register Ownership for a Gaia Data-URL. Only when you are the data owner of a Gaia-URL you can enable sharing below.
       </Text>
       <Flex experimental_spaceX={4} mb={8}>
         <Box>
+          <Input mb={2} placeholder='Copy Gaia-URL here' />
           <Button leftIcon={<Icon as={Share2} />} colorScheme="blue" bg="blue.400" size="sm" onClick={onTestDialogOpen}>
             add-data-owner
           </Button>
           <AlertDialog isOpen={isTestDialogOpen} onClose={onTestDialogClose} leastDestructiveRef={testDialogCancelRef}>
             <AlertDialogOverlay>
               <AlertDialogContent>
-                <AlertDialogHeader>Test</AlertDialogHeader>
-                <AlertDialogBody>Are you sure you want to share this file? This operation cannot be undone.</AlertDialogBody>
+                <AlertDialogHeader>Transaction Execution</AlertDialogHeader>
+                <AlertDialogBody>Are you sure you want to execute this transaction? This will cost a transaction fee.</AlertDialogBody>
                 <AlertDialogFooter as={Flex} experimental_spaceX={4}>
                   <Button onClick={onTestDialogClose} ref={testDialogCancelRef}>
                     Cancel
@@ -245,22 +254,24 @@ const OverviewFiles = () => {
           </AlertDialog>
         </Box>
         <Box p={1}>
-          <Text fontSize="l">Register Ownership for this Gaia-URL (input field required here)</Text>
+          <Text fontSize="l">Register Ownership for this Gaia-URL.</Text>
         </Box>
       </Flex>
       <Text fontSize="xl" mb={2}>
-        Register a new address that can access data you are the data owner. (Maximum 10)
+        Register a new address that can access data you are the data owner.
       </Text>
       <Flex experimental_spaceX={4} mb={8}>
         <Box>
+          <Input mb={2} placeholder='Copy Stacks-Address here' />
+          <Input mb={2} placeholder='Copy Gaia-URL here' />
           <Button leftIcon={<Icon as={Share2} />} colorScheme="blue" bg="blue.400" size="sm" onClick={onTestDialogOpen}>
             add-data-accessor
           </Button>
           <AlertDialog isOpen={isTestDialogOpen} onClose={onTestDialogClose} leastDestructiveRef={testDialogCancelRef}>
             <AlertDialogOverlay>
               <AlertDialogContent>
-                <AlertDialogHeader>Test</AlertDialogHeader>
-                <AlertDialogBody>Are you sure you want to share this file? This operation cannot be undone.</AlertDialogBody>
+                <AlertDialogHeader>Transaction Execution</AlertDialogHeader>
+                <AlertDialogBody>Are you sure you want to execute this transaction? This will cost a transaction fee.</AlertDialogBody>
                 <AlertDialogFooter as={Flex} experimental_spaceX={4}>
                   <Button onClick={onTestDialogClose} ref={testDialogCancelRef}>
                     Cancel
@@ -279,7 +290,7 @@ const OverviewFiles = () => {
           </AlertDialog>
         </Box>
         <Box p={1}>
-          <Text fontSize="l">Register new address (input field required here) that can access this Gaia-URL (input field required here)</Text>
+          <Text fontSize="l">Register new address that can access this Gaia-URL.</Text>
         </Box>
       </Flex>
       <Text fontSize="xl" mb={2}>
@@ -287,14 +298,15 @@ const OverviewFiles = () => {
       </Text>
       <Flex experimental_spaceX={4} mb={8}>
         <Box>
+          <Input mb={2} placeholder='Copy Gaia-URL here' />
           <Button leftIcon={<Icon as={Share2} />} colorScheme="blue" bg="blue.400" size="sm" onClick={onTestDialogOpen}>
             remove-data-accessors
           </Button>
           <AlertDialog isOpen={isTestDialogOpen} onClose={onTestDialogClose} leastDestructiveRef={testDialogCancelRef}>
             <AlertDialogOverlay>
               <AlertDialogContent>
-                <AlertDialogHeader>Test</AlertDialogHeader>
-                <AlertDialogBody>Are you sure you want to share this file? This operation cannot be undone.</AlertDialogBody>
+                <AlertDialogHeader>Transaction Execution</AlertDialogHeader>
+                <AlertDialogBody>Are you sure you want to execute this transaction? This will cost a transaction fee.</AlertDialogBody>
                 <AlertDialogFooter as={Flex} experimental_spaceX={4}>
                   <Button onClick={onTestDialogClose} ref={testDialogCancelRef}>
                     Cancel
@@ -313,7 +325,7 @@ const OverviewFiles = () => {
           </AlertDialog>
         </Box>
         <Box p={1}>
-          <Text fontSize="l">Remove all addresses that can access your Gaia-URL (input field required here)</Text>
+          <Text fontSize="l">Remove all addresses that can access your Gaia-URL.</Text>
         </Box>
       </Flex>
       <Text fontSize="xl" mb={2}>
@@ -321,14 +333,15 @@ const OverviewFiles = () => {
       </Text>
       <Flex experimental_spaceX={4} mb={2}>
         <Box>
+          <Input mb={2} placeholder='Copy Gaia-URL here' />
           <Button leftIcon={<Icon as={Share2} />} colorScheme="blue" bg="blue.400" size="sm" onClick={onTestDialogOpen}>
             get-data-owner
           </Button>
           <AlertDialog isOpen={isTestDialogOpen} onClose={onTestDialogClose} leastDestructiveRef={testDialogCancelRef}>
             <AlertDialogOverlay>
               <AlertDialogContent>
-                <AlertDialogHeader>Test</AlertDialogHeader>
-                <AlertDialogBody>Are you sure you want to share this file? This operation cannot be undone.</AlertDialogBody>
+                <AlertDialogHeader>Read Transaction</AlertDialogHeader>
+                <AlertDialogBody>This will cost no transaction fee.</AlertDialogBody>
                 <AlertDialogFooter as={Flex} experimental_spaceX={4}>
                   <Button onClick={onTestDialogClose} ref={testDialogCancelRef}>
                     Cancel
@@ -347,19 +360,20 @@ const OverviewFiles = () => {
           </AlertDialog>
         </Box>
         <Box p={1}>
-          <Text fontSize="l">Check the data owner role of a Gaia-URL (input field required here)</Text>
+          <Text fontSize="l">Check the data owner role of a Gaia-URL.</Text>
         </Box>
       </Flex>
       <Flex experimental_spaceX={4} mb={5}>
         <Box>
+          <Input mb={2} placeholder='Copy Gaia-URL here' />
           <Button leftIcon={<Icon as={Share2} />} colorScheme="blue" bg="blue.400" size="sm" onClick={onTestDialogOpen}>
             list-of-data-accessors
           </Button>
           <AlertDialog isOpen={isTestDialogOpen} onClose={onTestDialogClose} leastDestructiveRef={testDialogCancelRef}>
             <AlertDialogOverlay>
               <AlertDialogContent>
-                <AlertDialogHeader>Test</AlertDialogHeader>
-                <AlertDialogBody>Are you sure you want to share this file? This operation cannot be undone.</AlertDialogBody>
+                <AlertDialogHeader>Read Transaction</AlertDialogHeader>
+                <AlertDialogBody>This will cost no transaction fee.</AlertDialogBody>
                 <AlertDialogFooter as={Flex} experimental_spaceX={4}>
                   <Button onClick={onTestDialogClose} ref={testDialogCancelRef}>
                     Cancel
@@ -378,24 +392,25 @@ const OverviewFiles = () => {
           </AlertDialog>
         </Box>
         <Box p={1}>
-          <Text fontSize="l">Check the data accessor roles of a Gaia-URL (input field required here)</Text>
+          <Text fontSize="l">Check the data accessor roles of a Gaia-URL.</Text>
         </Box>
       </Flex>
 
       <Heading mb={5}>Token-Based Data Sharing</Heading>
       <Text fontSize="xl" mb={2}>
-        Mint Ownership NFT for gaiaURL
+        Mint ownership-NFT for gaiaURL
       </Text>
       <Flex experimental_spaceX={4} mb={8}>
         <Box>
+          <Input mb={2} placeholder='Copy Gaia-URL here' />
           <Button leftIcon={<Icon as={Share2} />} colorScheme="blue" bg="blue.400" size="sm" onClick={onTestDialogOpen}>
             mint-ownership-nft
           </Button>
           <AlertDialog isOpen={isTestDialogOpen} onClose={onTestDialogClose} leastDestructiveRef={testDialogCancelRef}>
             <AlertDialogOverlay>
               <AlertDialogContent>
-                <AlertDialogHeader>Test</AlertDialogHeader>
-                <AlertDialogBody>Are you sure you want to share this file? This operation cannot be undone.</AlertDialogBody>
+                <AlertDialogHeader>Transaction Execution</AlertDialogHeader>
+                <AlertDialogBody>Are you sure you want to execute this transaction? This will cost a transaction fee.</AlertDialogBody>
                 <AlertDialogFooter as={Flex} experimental_spaceX={4}>
                   <Button onClick={onTestDialogClose} ref={testDialogCancelRef}>
                     Cancel
@@ -414,7 +429,7 @@ const OverviewFiles = () => {
           </AlertDialog>
         </Box>
         <Box p={1}>
-          <Text fontSize="l">Mint ownership nft for this Gaia-URL (input field required here)</Text>
+          <Text fontSize="l">Mint ownership-NFT for this Gaia-URL.</Text>
         </Box>
       </Flex>
       <Text fontSize="xl" mb={2}>
@@ -422,14 +437,15 @@ const OverviewFiles = () => {
       </Text>
       <Flex experimental_spaceX={4} mb={8}>
         <Box>
+          <Input mb={2} placeholder='Copy Gaia-URL here' />
           <Button leftIcon={<Icon as={Share2} />} colorScheme="blue" bg="blue.400" size="sm" onClick={onTestDialogOpen}>
             mint-data-access-nft
           </Button>
           <AlertDialog isOpen={isTestDialogOpen} onClose={onTestDialogClose} leastDestructiveRef={testDialogCancelRef}>
             <AlertDialogOverlay>
               <AlertDialogContent>
-                <AlertDialogHeader>Test</AlertDialogHeader>
-                <AlertDialogBody>Are you sure you want to share this file? This operation cannot be undone.</AlertDialogBody>
+                <AlertDialogHeader>Transaction Execution</AlertDialogHeader>
+                <AlertDialogBody>Are you sure you want to execute this transaction? This will cost a transaction fee.</AlertDialogBody>
                 <AlertDialogFooter as={Flex} experimental_spaceX={4}>
                   <Button onClick={onTestDialogClose} ref={testDialogCancelRef}>
                     Cancel
@@ -448,7 +464,7 @@ const OverviewFiles = () => {
           </AlertDialog>
         </Box>
         <Box p={1}>
-          <Text fontSize="l">Mint data access nft for this Gaia-URL (input field required here) (Maximum 10)</Text>
+          <Text fontSize="l">Mint data access-NFT for this Gaia-URL (Maximum 10).</Text>
         </Box>
       </Flex>
       <Text fontSize="xl" mb={2}>
@@ -462,8 +478,8 @@ const OverviewFiles = () => {
           <AlertDialog isOpen={isTestDialogOpen} onClose={onTestDialogClose} leastDestructiveRef={testDialogCancelRef}>
             <AlertDialogOverlay>
               <AlertDialogContent>
-                <AlertDialogHeader>Test</AlertDialogHeader>
-                <AlertDialogBody>Are you sure you want to share this file? This operation cannot be undone.</AlertDialogBody>
+                <AlertDialogHeader>Transaction Execution</AlertDialogHeader>
+                <AlertDialogBody>Are you sure you want to execute this transaction? This will cost a transaction fee.</AlertDialogBody>
                 <AlertDialogFooter as={Flex} experimental_spaceX={4}>
                   <Button onClick={onTestDialogClose} ref={testDialogCancelRef}>
                     Cancel
@@ -482,7 +498,7 @@ const OverviewFiles = () => {
           </AlertDialog>
         </Box>
         <Box p={1}>
-          <Text fontSize="l">Enable/disable NFT access for this Gaia-URL (input field required here)</Text>
+          <Text fontSize="l">Enable/disable NFT access for this Gaia-URL.</Text>
         </Box>
       </Flex>
       <Text fontSize="xl" mb={2}>
@@ -490,14 +506,15 @@ const OverviewFiles = () => {
       </Text>
       <Flex experimental_spaceX={4} mb={2}>
         <Box>
+          <Input mb={2} placeholder='Copy Gaia-URL here' />
           <Button leftIcon={<Icon as={Share2} />} colorScheme="blue" bg="blue.400" size="sm" onClick={onTestDialogOpen}>
             get-ownerhsip-nft-owner
           </Button>
           <AlertDialog isOpen={isTestDialogOpen} onClose={onTestDialogClose} leastDestructiveRef={testDialogCancelRef}>
             <AlertDialogOverlay>
               <AlertDialogContent>
-                <AlertDialogHeader>Test</AlertDialogHeader>
-                <AlertDialogBody>Are you sure you want to share this file? This operation cannot be undone.</AlertDialogBody>
+                <AlertDialogHeader>Read Transaction</AlertDialogHeader>
+                <AlertDialogBody>This will cost no transaction fee.</AlertDialogBody>
                 <AlertDialogFooter as={Flex} experimental_spaceX={4}>
                   <Button onClick={onTestDialogClose} ref={testDialogCancelRef}>
                     Cancel
@@ -516,19 +533,20 @@ const OverviewFiles = () => {
           </AlertDialog>
         </Box>
         <Box p={1}>
-          <Text fontSize="l">Retrieve the ownership-NFT owner for a Gaia-URL (input field required here)</Text>
+          <Text fontSize="l">Retrieve the ownership-NFT owner for a Gaia-URL.</Text>
         </Box>
       </Flex>
       <Flex experimental_spaceX={4} mb={2}>
         <Box>
+          <Input mb={2} placeholder='Copy Gaia-URL here' />
           <Button leftIcon={<Icon as={Share2} />} colorScheme="blue" bg="blue.400" size="sm" onClick={onTestDialogOpen}>
             list-of-access-nft
           </Button>
           <AlertDialog isOpen={isTestDialogOpen} onClose={onTestDialogClose} leastDestructiveRef={testDialogCancelRef}>
             <AlertDialogOverlay>
               <AlertDialogContent>
-                <AlertDialogHeader>Test</AlertDialogHeader>
-                <AlertDialogBody>Are you sure you want to share this file? This operation cannot be undone.</AlertDialogBody>
+                <AlertDialogHeader>Read Transaction</AlertDialogHeader>
+                <AlertDialogBody>This will cost no transaction fee.</AlertDialogBody>
                 <AlertDialogFooter as={Flex} experimental_spaceX={4}>
                   <Button onClick={onTestDialogClose} ref={testDialogCancelRef}>
                     Cancel
@@ -547,19 +565,26 @@ const OverviewFiles = () => {
           </AlertDialog>
         </Box>
         <Box p={1}>
-          <Text fontSize="l">Retrieve all access-NFT uri's active for a Gaia-URL (input field required here)</Text>
+          <Text fontSize="l">Retrieve all active access-NFT URI's for a Gaia-URL.</Text>
         </Box>
       </Flex>
       <Flex experimental_spaceX={4} mb={2}>
         <Box>
+        <NumberInput defaultValue={0} min={0}>
+          <NumberInputField />
+          <NumberInputStepper>
+            <NumberIncrementStepper />
+            <NumberDecrementStepper />
+          </NumberInputStepper>
+        </NumberInput>
           <Button leftIcon={<Icon as={Share2} />} colorScheme="blue" bg="blue.400" size="sm" onClick={onTestDialogOpen}>
             get-access-nft-owner
           </Button>
           <AlertDialog isOpen={isTestDialogOpen} onClose={onTestDialogClose} leastDestructiveRef={testDialogCancelRef}>
             <AlertDialogOverlay>
               <AlertDialogContent>
-                <AlertDialogHeader>Test</AlertDialogHeader>
-                <AlertDialogBody>Are you sure you want to share this file? This operation cannot be undone.</AlertDialogBody>
+                <AlertDialogHeader>Read Transaction</AlertDialogHeader>
+                <AlertDialogBody>This will cost no transaction fee.</AlertDialogBody>
                 <AlertDialogFooter as={Flex} experimental_spaceX={4}>
                   <Button onClick={onTestDialogClose} ref={testDialogCancelRef}>
                     Cancel
@@ -578,7 +603,7 @@ const OverviewFiles = () => {
           </AlertDialog>
         </Box>
         <Box p={1}>
-          <Text fontSize="l">Retrieve the access-NFT owner for a given uri (get them from the list above)</Text>
+          <Text fontSize="l">Retrieve the access-NFT owner for a Token-URI.</Text>
         </Box>
       </Flex>
 

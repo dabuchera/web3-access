@@ -1,5 +1,5 @@
 const defaultSEOConfig = {
-  title: 'NFT-Paper',
+  title: 'Web3-Access-Paper',
   description: 'Prototype for EC3 Conference Paper.',
   openGraph: {
     type: 'website',
