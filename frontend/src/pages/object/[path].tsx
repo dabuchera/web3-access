@@ -74,7 +74,7 @@ const ObjectPage: NextPage = () => {
 
   return (
     <>
-      <NextSeo title={`${path} | NFT-Paper`} />
+      <NextSeo title={`${path} | Web3-Access-Paper`} />
       {metadata ? (
         <Box>
           <VStack spacing={4}>

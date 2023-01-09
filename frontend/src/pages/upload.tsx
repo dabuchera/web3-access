@@ -6,7 +6,7 @@ import Upload from '@/components/Upload'
 const Home: NextPage = () => {
   return (
     <>
-      <NextSeo title="Upload | NFT-Paper" />
+      <NextSeo title="Upload | Web3-Access-Paper" />
       <Heading mb={8}>Upload Files</Heading>
 
       <Upload />
