@@ -27,7 +27,7 @@ import {
   useClipboard,
   Badge,
 } from '@chakra-ui/react'
-import { MutableRefObject, useRef } from 'react'
+import { MutableRefObject, useEffect, useRef } from 'react'
 import { format } from 'date-fns'
 import { Type, FileText, Share2, Trash2, Copy, Check } from 'react-feather'
 import NextLink from 'next/link'
@@ -56,6 +56,10 @@ const File = ({ path, isPublic, isString, lastModified, shared, url }: IFileProp
   } = useDisclosure()
 
   const shareDialogCancelRef = useRef<HTMLButtonElement>() as MutableRefObject<HTMLButtonElement>
+
+  useEffect(() => {
+    console.log({ path, isPublic, isString, lastModified, shared, url })
+  }, [])
 
   const handleShareFile = async (path: string) => {
     startLoading()
@@ -157,7 +161,6 @@ const File = ({ path, isPublic, isString, lastModified, shared, url }: IFileProp
             >
               {!shared ? 'Allow Sharing' : 'Revoke Sharing'}
             </Button>
-
             <AlertDialog
               isOpen={isShareAlertDialogOpen}
               onClose={onShareAlertDialogClose}
@@ -220,6 +223,20 @@ const File = ({ path, isPublic, isString, lastModified, shared, url }: IFileProp
             </AlertDialogOverlay>
           </AlertDialog>
         </Box>
+      </Flex>
+      {/* Sharing Control */}
+      <Flex experimental_spaceX={4}>
+        {!shared ? (
+          <></>
+        ) : (
+          <Box>
+            <a href={`/sharingcontrol/${path}`}>
+              <Button leftIcon={<Icon as={Share2} />} colorScheme="blue" bg="blue.100" size="sm">
+                Sharing Control
+              </Button>
+            </a>
+          </Box>
+        )}
       </Flex>
       {/* Copy Gaia URL */}
       <Flex experimental_spaceX={4}>

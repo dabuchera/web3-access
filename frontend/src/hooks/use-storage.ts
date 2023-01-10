@@ -188,9 +188,14 @@ export const useStorage = () => {
           // Process your data as a JavaScript object
           if (contentType && contentType.indexOf('application/json') !== -1) {
             return response.json().then((data) => {
+              console.log('data')
               console.log(data)
               const res = JSON.stringify(data)
+
+
               // Hier die Decryption machen
+
+              
               // Check if file is encrypted
               if (typeof res === 'string' || (res as any) instanceof String) {
                 if (res.includes('cipherText')) {
