@@ -17,10 +17,10 @@ plan:
             path: ".cache/requirements/SP2PABAF9FTAJYNFZH93XENAJ8FVY99RRM50D2JG9.nft-trait.clar"
             clarity-version: 1
         - contract-publish:
-            contract-name: ownershipNFT
+            contract-name: rolesAccess
             expected-sender: ST1PQHQKV0RJXZFY1DGX8MNSNYVE3VGZJSRTPGZGM
-            cost: 10780
-            path: contracts/ownershipNFT.clar
+            cost: 65460
+            path: contracts/rolesAccess.clar
             anchor-block-only: true
             clarity-version: 1
         - contract-publish:
@@ -31,16 +31,16 @@ plan:
             anchor-block-only: true
             clarity-version: 1
         - contract-publish:
+            contract-name: ownershipNFT
+            expected-sender: ST1PQHQKV0RJXZFY1DGX8MNSNYVE3VGZJSRTPGZGM
+            cost: 10780
+            path: contracts/ownershipNFT.clar
+            anchor-block-only: true
+            clarity-version: 1
+        - contract-publish:
             contract-name: tokenAccess
             expected-sender: ST1PQHQKV0RJXZFY1DGX8MNSNYVE3VGZJSRTPGZGM
             cost: 68310
             path: contracts/tokenAccess.clar
-            anchor-block-only: true
-            clarity-version: 1
-        - contract-publish:
-            contract-name: rolesAccess
-            expected-sender: ST1PQHQKV0RJXZFY1DGX8MNSNYVE3VGZJSRTPGZGM
-            cost: 65460
-            path: contracts/rolesAccess.clar
             anchor-block-only: true
             clarity-version: 1

@@ -52,6 +52,11 @@ plan:
             path: ".cache/requirements/SP2PABAF9FTAJYNFZH93XENAJ8FVY99RRM50D2JG9.nft-trait.clar"
             clarity-version: 1
         - emulated-contract-publish:
+            contract-name: accessNFT
+            emulated-sender: ST1PQHQKV0RJXZFY1DGX8MNSNYVE3VGZJSRTPGZGM
+            path: contracts/accessNFT.clar
+            clarity-version: 1
+        - emulated-contract-publish:
             contract-name: rolesAccess
             emulated-sender: ST1PQHQKV0RJXZFY1DGX8MNSNYVE3VGZJSRTPGZGM
             path: contracts/rolesAccess.clar
@@ -60,11 +65,6 @@ plan:
             contract-name: ownershipNFT
             emulated-sender: ST1PQHQKV0RJXZFY1DGX8MNSNYVE3VGZJSRTPGZGM
             path: contracts/ownershipNFT.clar
-            clarity-version: 1
-        - emulated-contract-publish:
-            contract-name: accessNFT
-            emulated-sender: ST1PQHQKV0RJXZFY1DGX8MNSNYVE3VGZJSRTPGZGM
-            path: contracts/accessNFT.clar
             clarity-version: 1
         - emulated-contract-publish:
             contract-name: tokenAccess
