@@ -7,9 +7,7 @@ export const appDetails: AuthOptions['appDetails'] = {
   icon: 'TBF',
 }
 
-export const contractOwnerAddress = 'ST1HVZ0NQ050J2674MA0B9E5T65QY4J1XT5JGE1FB'
-
-// export const dasContractAddress = 'ST3QAYFPQJX93Z2JANY2602C2NK8ZGG0MREAMM0DH'
+export const contractOwnerAddress = 'ST2Q25747F18NBRK958J7YX0DJ1MNF4QEVA9WCZCJ'
 
 export const dasContractName = 'das'
 
