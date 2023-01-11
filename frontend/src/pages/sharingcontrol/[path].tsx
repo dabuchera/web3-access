@@ -36,7 +36,7 @@ import { IPrivateFile, IPublicFile } from '@/types/storage'
 import { contractOwnerAddress, appDetails } from '@/lib/constants'
 import { ContractCallRegularOptions, openContractCall } from '@stacks/connect'
 import { url } from 'inspector'
-import { callReadOnlyFunction, stringAsciiCV, uintCV, cvToValue} from '@stacks/transactions'
+import { callReadOnlyFunction, stringAsciiCV, uintCV, cvToValue, standardPrincipalCV} from '@stacks/transactions'
 import { StacksNetwork, StacksTestnet, StacksMocknet } from '@stacks/network'
 import { useAuth } from '@/hooks/use-auth'
 
@@ -52,7 +52,8 @@ const ObjectPage: NextPage = () => {
   const [metadata, setMetadata] = useState<IPrivateFile | IPublicFile>()
 
   const inputRef = useRef<HTMLInputElement>(null)
-  const [numberInput, setNumberInput] = useState<Number>(0)
+  const [numberInput, setNumberInput] = useState<number>(1)
+  const [addressInput, setAddressInput] = useState<string>('')
 
   const { isLoading: isLoading, startLoading: startLoading, stopLoading: stopLoading } = useLoading()
 
@@ -64,6 +65,15 @@ const ObjectPage: NextPage = () => {
 
   const { isOpen: is_3DialogOpen, onOpen: on_3DialogOpen, onClose: on_3DialogClose } = useDisclosure()
   const _3DialogCancelRef = useRef<HTMLButtonElement>() as MutableRefObject<HTMLButtonElement>
+
+  const { isOpen: is_4DialogOpen, onOpen: on_4DialogOpen, onClose: on_4DialogClose } = useDisclosure()
+  const _4DialogCancelRef = useRef<HTMLButtonElement>() as MutableRefObject<HTMLButtonElement>
+
+  const { isOpen: is_5DialogOpen, onOpen: on_5DialogOpen, onClose: on_5DialogClose } = useDisclosure()
+  const _5DialogCancelRef = useRef<HTMLButtonElement>() as MutableRefObject<HTMLButtonElement>
+
+  const { isOpen: is_6DialogOpen, onOpen: on_6DialogOpen, onClose: on_6DialogClose } = useDisclosure()
+  const _6DialogCancelRef = useRef<HTMLButtonElement>() as MutableRefObject<HTMLButtonElement>
 
   useEffect(() => {
     const fetchFile = async () => {
@@ -80,9 +90,161 @@ const ObjectPage: NextPage = () => {
     fetchFile()
   }, [path])
 
-  const test = () => {
-    console.log(numberInput)
+  //-------------- ROLE-BASED SMARTCONTRACT FUNCTIONS --------------
+
+  // (add-data-owner (url (string-ascii 100)))
+  const addDataOwner = async () => {
+    const url = metadata?.url
+    if (!url) {
+      return null
+    }
+    const options: ContractCallRegularOptions = {
+      contractAddress: contractOwnerAddress,
+      contractName: 'rolesAccess',
+      functionName: 'add-data-owner',
+      functionArgs: [stringAsciiCV(metadata.url)],
+      postConditions: [],
+      appDetails,
+      onFinish: (data) => {
+        on_1DialogClose()
+        toast({
+          title: 'Transaction succeeded',
+          description: 'Congrats, you registered for this ownership role.',
+          status: 'success',
+        })
+      },
+    }
+    await openContractCall(options)
   }
+
+  // (add-data-accessor (url (string-ascii 100)) (address principal))
+  const addDataAccessor = async () => {
+    const url = metadata?.url
+    if (!url) {
+      return null
+    }
+    const options: ContractCallRegularOptions = {
+      contractAddress: contractOwnerAddress,
+      contractName: 'rolesAccess',
+      functionName: 'add-data-accessor',
+      functionArgs: [stringAsciiCV(metadata.url), standardPrincipalCV(addressInput)],
+      postConditions: [],
+      appDetails,
+      onFinish: (data) => {
+        on_1DialogClose()
+        toast({
+          title: 'Transaction succeeded',
+          description: 'Congrats, you registered a new address for the access-role.',
+          status: 'success',
+        })
+      },
+    }
+    await openContractCall(options)
+  }
+
+  // (remove-data-accessors (url (string-ascii 100)))
+  const removeDataAccessors = async () => {
+    const url = metadata?.url
+    if (!url) {
+      return null
+    }
+    const options: ContractCallRegularOptions = {
+      contractAddress: contractOwnerAddress,
+      contractName: 'rolesAccess',
+      functionName: 'remove-data-accessors',
+      functionArgs: [stringAsciiCV(metadata.url)],
+      postConditions: [],
+      appDetails,
+      onFinish: (data) => {
+        on_1DialogClose()
+        toast({
+          title: 'Transaction succeeded',
+          description: 'Congrats, you removed all address for the access-role.',
+          status: 'success',
+        })
+      },
+    }
+    await openContractCall(options)
+  }
+
+  // (get-data-owner (url (string-ascii 100)))
+  const getDataOwner = async () => {
+    const address = useSTXAddress()
+    if(!address){
+      return null
+    }
+    const url = metadata?.url
+    if (!url) {
+      return null
+    }
+    const network = new StacksTestnet()
+    const operationalTemp = await callReadOnlyFunction({
+      contractAddress: contractOwnerAddress,
+      contractName: 'rolesAccess',
+      functionName: 'get-data-owner',
+      functionArgs: [stringAsciiCV(metadata.url)],
+      senderAddress: address,
+      network
+    })
+    console.log(cvToValue(operationalTemp).value)
+    if (cvToValue(operationalTemp).value == "1005"){
+      toast({
+        title: 'Transaction failed',
+        description: 'No data owner found.',
+        status: 'error',
+      })
+      return null
+    }
+    toast({
+      title: 'Transaction succeeded',
+      description: cvToValue(operationalTemp).value,
+      status: 'success',
+    })
+    return null
+  }
+
+   // (list-of-data-accessors (url (string-ascii 100)))
+   const listOfDataAccessors = async () => {
+    const address = useSTXAddress()
+    if(!address){
+      return null
+    }
+    const url = metadata?.url
+    if (!url) {
+      return null
+    }
+    const network = new StacksTestnet()
+    const operationalTemp = await callReadOnlyFunction({
+      contractAddress: contractOwnerAddress,
+      contractName: 'rolesAccess',
+      functionName: 'list-of-data-accessors',
+      functionArgs: [stringAsciiCV(metadata.url)],
+      senderAddress: address,
+      network
+    })
+    const arr = cvToValue(operationalTemp)
+    let show = ''
+    arr.forEach((element: { value: string }) => {
+      show += element.value + ', '
+    });
+    console.log(show)
+    if (!show){
+      toast({
+        title: 'Transaction failed',
+        description: 'No URIs found.',
+        status: 'error',
+      })
+      return null
+    }
+    toast({
+      title: 'Transaction succeeded',
+      description: show,
+      status: 'success',
+    })
+    return null
+  }
+
+  //-------------- TOKEN-BASED SMARTCONTRACT FUNCTIONS --------------
 
   // (mint-ownership-nft (url (string-ascii 100)))
   const mintOwnershipNFT = async () => {
@@ -96,36 +258,153 @@ const ObjectPage: NextPage = () => {
       functionName: 'mint-ownership-nft',
       functionArgs: [stringAsciiCV(metadata.url)],
       postConditions: [],
-      // network,
       appDetails,
       onFinish: (data) => {
         on_1DialogClose()
         toast({
-          title: 'Transaction succeed',
-          description: 'Congrats, your NFT is coming',
+          title: 'Transaction succeeded',
+          description: 'Congrats, your ownership-NFT is being issued.',
           status: 'success',
         })
       },
     }
-
     await openContractCall(options)
   }
 
-  const mintDataAccessNFT = async () => {}
+  // (mint-data-access-nft (url (string-ascii 100)))
+  const mintDataAccessNFT = async () => {
+    const url = metadata?.url
+    if (!url) {
+      return null
+    }
+    const options: ContractCallRegularOptions = {
+      contractAddress: contractOwnerAddress,
+      contractName: 'tokenAccess',
+      functionName: 'mint-data-access-nft',
+      functionArgs: [stringAsciiCV(metadata.url)],
+      postConditions: [],
+      appDetails,
+      onFinish: (data) => {
+        on_1DialogClose()
+        toast({
+          title: 'Transaction succeeded',
+          description: 'Congrats, your access-NFT is being issued.',
+          status: 'success',
+        })
+      },
+    }
+    await openContractCall(options)
+  }
 
-  const changeAcessNFTActivation = async () => {}
+  // (change-access-nft-activation (url (string-ascii 100)))
+  const changeAcessNFTActivation = async () => {
+    const url = metadata?.url
+    if (!url) {
+      return null
+    }
+    const options: ContractCallRegularOptions = {
+      contractAddress: contractOwnerAddress,
+      contractName: 'tokenAccess',
+      functionName: 'change-access-nft-activation',
+      functionArgs: [stringAsciiCV(metadata.url)],
+      postConditions: [],
+      appDetails,
+      onFinish: (data) => {
+        on_1DialogClose()
+        toast({
+          title: 'Transaction succeeded',
+          description: 'Congrats, you changed the activation state.',
+          status: 'success',
+        })
+      },
+    }
+    await openContractCall(options)
+  }
 
+  // (get-ownership-nft-owner (url (string-ascii 100)))
+  const getOwnershipNFTOwner = async () => {
+    const address = useSTXAddress()
+    if(!address){
+      return null
+    }
+    const url = metadata?.url
+    if (!url) {
+      return null
+    }
+    const network = new StacksTestnet()
+    const operationalTemp = await callReadOnlyFunction({
+      contractAddress: contractOwnerAddress,
+      contractName: 'tokenAccess',
+      functionName: 'get-ownership-nft-owner',
+      functionArgs: [stringAsciiCV(metadata.url)],
+      senderAddress: address,
+      network
+    })
+    console.log(cvToValue(operationalTemp).value)
+    if (cvToValue(operationalTemp).value == "1005"){
+      toast({
+        title: 'Transaction failed',
+        description: 'No NFT owner found.',
+        status: 'error',
+      })
+      return null
+    }
+    toast({
+      title: 'Transaction succeeded',
+      description: cvToValue(operationalTemp).value,
+      status: 'success',
+    })
+    return null
+  }
 
+  // (list-of-access-nft (url (string-ascii 100)))
+  const listOfAccessNFT = async () => {
+    const address = useSTXAddress()
+    if(!address){
+      return null
+    }
+    const url = metadata?.url
+    if (!url) {
+      return null
+    }
+    const network = new StacksTestnet()
+    const operationalTemp = await callReadOnlyFunction({
+      contractAddress: contractOwnerAddress,
+      contractName: 'tokenAccess',
+      functionName: 'list-of-access-nft',
+      functionArgs: [stringAsciiCV(metadata.url)],
+      senderAddress: address,
+      network
+    })
+    const arr = cvToValue(operationalTemp)
+    let show = ''
+    arr.forEach((element: { value: string }) => {
+      show += element.value + ', '
+    });
+    console.log(show)
+    if (!show){
+      toast({
+        title: 'Transaction failed',
+        description: 'No URIs found.',
+        status: 'error',
+      })
+      return null
+    }
+    toast({
+      title: 'Transaction succeeded',
+      description: show,
+      status: 'success',
+    })
+    return null
+  }
 
+  // (get-access-nft-owner (uri uint))
   const getAccessNFTOwner = async () => {
     const address = useSTXAddress()
     if(!address){
       return null
     }
-    console.log(address)
-
     const network = new StacksTestnet()
-
     const operationalTemp = await callReadOnlyFunction({
       contractAddress: contractOwnerAddress,
       contractName: 'tokenAccess',
@@ -134,25 +413,39 @@ const ObjectPage: NextPage = () => {
       senderAddress: address,
       network
     })
-    // return cvToValue(operationalTemp).value
     console.log(cvToValue(operationalTemp).value)
+    if (cvToValue(operationalTemp).value == "1003"){
+      toast({
+        title: 'Transaction failed',
+        description: 'No address found for this URI.',
+        status: 'error',
+      })
+      return null
+    }
+    toast({
+      title: 'Transaction succeeded',
+      description: cvToValue(operationalTemp).value,
+      status: 'success',
+    })
+    return null
   }
 
-
-
-  // principalCV(string)
+  //--------------  FRONTEND --------------
 
   return (
     <>
       {metadata ? (
         <>
-          <Heading mb={5}>Token-Based Data Sharing</Heading>
+          {/* --------------  ROLE FUNCTIONS -------------- */}
+          <Heading mb={5}>Role-Based Data Sharing</Heading>
+
+          {/* Register Ownership Role */}
           <Text fontSize="xl" mb={2}>
-            Mint Ownership-NFT
+            Register for Ownership-Role
           </Text>
           <Flex experimental_spaceX={4} mb={8}>
             <Button leftIcon={<Icon as={Share2} />} colorScheme="blue" bg="blue.400" size="sm" onClick={on_1DialogOpen}>
-              mint-ownership-nft
+              add-data-owner
             </Button>
             <AlertDialog isOpen={is_1DialogOpen} onClose={on_1DialogClose} leastDestructiveRef={_1DialogCancelRef}>
               <AlertDialogOverlay>
@@ -163,6 +456,139 @@ const ObjectPage: NextPage = () => {
                   </AlertDialogBody>
                   <AlertDialogFooter as={Flex} experimental_spaceX={4}>
                     <Button onClick={on_1DialogClose} ref={_1DialogCancelRef}>
+                      Cancel
+                    </Button>
+                    <Button
+                      colorScheme="blue"
+                      bg="blue.400"
+                      onClick={async () => await addDataOwner()}
+                      isLoading={isLoading}
+                    >
+                      Register as Owner
+                    </Button>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialogOverlay>
+            </AlertDialog>
+          </Flex>
+
+          {/* Register Address for Access Role */}
+          <Text fontSize="xl" mb={2}>
+            Register Address for Access-Role (max. 10)
+          </Text>
+          <Flex experimental_spaceX={4} mb={8}>
+            <Input mb={2} placeholder='Copy Stacks-Address here' value={addressInput} onChange={(event) => setAddressInput(event.target.value)}/>
+            <Button leftIcon={<Icon as={Share2} />} colorScheme="blue" bg="blue.400" size="sm" onClick={on_2DialogOpen}>
+              add-data-accessor
+            </Button>
+            <AlertDialog isOpen={is_2DialogOpen} onClose={on_2DialogClose} leastDestructiveRef={_2DialogCancelRef}>
+              <AlertDialogOverlay>
+                <AlertDialogContent>
+                  <AlertDialogHeader>Transaction Execution</AlertDialogHeader>
+                  <AlertDialogBody>
+                    Are you sure you want to execute this transaction? This will cost a transaction fee.
+                  </AlertDialogBody>
+                  <AlertDialogFooter as={Flex} experimental_spaceX={4}>
+                    <Button onClick={on_2DialogClose} ref={_2DialogCancelRef}>
+                      Cancel
+                    </Button>
+                    <Button
+                      colorScheme="blue"
+                      bg="blue.400"
+                      onClick={async () => await addDataAccessor()}
+                      isLoading={isLoading}
+                    >
+                      Register Address
+                    </Button>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialogOverlay>
+            </AlertDialog>
+          </Flex>
+
+          {/* Remove all addresses from access role */}
+          <Text fontSize="xl" mb={2}>
+            Revoke Sharing for All Registered Access-Role Addresses
+          </Text>
+          <Flex experimental_spaceX={4} mb={8}>
+            <Box>
+              <Button leftIcon={<Icon as={Share2} />} colorScheme="blue" bg="blue.400" size="sm" onClick={on_3DialogOpen}>
+                remove-data-accessors
+              </Button>
+              <AlertDialog isOpen={is_3DialogOpen} onClose={on_3DialogClose} leastDestructiveRef={_3DialogCancelRef}>
+                <AlertDialogOverlay>
+                  <AlertDialogContent>
+                    <AlertDialogHeader>Transaction Execution</AlertDialogHeader>
+                    <AlertDialogBody>
+                      Are you sure you want to execute this transaction? This will cost a transaction fee.
+                    </AlertDialogBody>
+                    <AlertDialogFooter as={Flex} experimental_spaceX={4}>
+                      <Button onClick={on_3DialogClose} ref={_3DialogCancelRef}>
+                        Cancel
+                      </Button>
+                      <Button
+                        colorScheme="blue"
+                        bg="blue.400"
+                        onClick={async () => await removeDataAccessors()}
+                        isLoading={isLoading}
+                      >
+                        Remove
+                      </Button>
+                    </AlertDialogFooter>
+                  </AlertDialogContent>
+                </AlertDialogOverlay>
+              </AlertDialog>
+            </Box>
+          </Flex>
+
+          <Text fontSize="xl" mb={2}>
+            You want to check whether this worked?
+          </Text>
+
+          {/* Get address that has ownership role */}
+          <Flex experimental_spaceX={4} mb={2}>
+            <Box>
+              <Button leftIcon={<Icon as={Share2} />} colorScheme="blue" bg="blue.400" size="sm" onClick={getDataOwner}>
+                get-data-owner
+              </Button>
+            </Box>
+            <Box p={1}>
+              <Text fontSize="l">Who is the ownership-Role?</Text>
+            </Box>
+          </Flex>
+
+          {/* Get list of addresses that have access role */}
+          <Flex experimental_spaceX={4} mb={8}>
+            <Box>
+              <Button leftIcon={<Icon as={Share2} />} colorScheme="blue" bg="blue.400" size="sm" onClick={listOfDataAccessors}>
+                list-of-data-accessors
+              </Button>
+            </Box>
+            <Box p={1}>
+              <Text fontSize="l">Retrieve all addresses with the access-Role.</Text>
+            </Box>
+          </Flex>
+          
+          {/* --------------  TOKEN FUNCTIONS -------------- */}
+          <Heading mb={5}>Token-Based Data Sharing</Heading>
+
+          {/* Mint ownerNFT */}
+          <Text fontSize="xl" mb={2}>
+            Mint Ownership-NFT
+          </Text>
+          <Flex experimental_spaceX={4} mb={8}>
+            <Button leftIcon={<Icon as={Share2} />} colorScheme="blue" bg="blue.400" size="sm" onClick={on_4DialogOpen}>
+              mint-ownership-nft
+            </Button>
+            <AlertDialog isOpen={is_4DialogOpen} onClose={on_4DialogClose} leastDestructiveRef={_4DialogCancelRef}>
+              <AlertDialogOverlay>
+                <AlertDialogContent>
+                  <AlertDialogHeader>Transaction Execution</AlertDialogHeader>
+                  <AlertDialogBody>
+                    Are you sure you want to execute this transaction? This will cost a transaction fee.
+                  </AlertDialogBody>
+                  <AlertDialogFooter as={Flex} experimental_spaceX={4}>
+                    <Button onClick={on_4DialogClose} ref={_4DialogCancelRef}>
                       Cancel
                     </Button>
                     <Button
@@ -179,16 +605,15 @@ const ObjectPage: NextPage = () => {
             </AlertDialog>
           </Flex>
 
-          {/* slkdjflksjdfkjskdjfsdj */}
+          {/* Mint accessNFT */}
           <Text fontSize="xl" mb={2}>
-            Mint Access Tokens that you can send to other addresses to access a gaiaURL. You need to own the OwnershipNFT for
-            this Gaia-URL.
+            Mint Access-NFTs (max. 10)
           </Text>
           <Flex experimental_spaceX={4} mb={8}>
-            <Button leftIcon={<Icon as={Share2} />} colorScheme="blue" bg="blue.400" size="sm" onClick={on_2DialogOpen}>
+            <Button leftIcon={<Icon as={Share2} />} colorScheme="blue" bg="blue.400" size="sm" onClick={on_5DialogOpen}>
               mint-data-access-nft
             </Button>
-            <AlertDialog isOpen={is_2DialogOpen} onClose={on_2DialogClose} leastDestructiveRef={_2DialogCancelRef}>
+            <AlertDialog isOpen={is_5DialogOpen} onClose={on_5DialogClose} leastDestructiveRef={_5DialogCancelRef}>
               <AlertDialogOverlay>
                 <AlertDialogContent>
                   <AlertDialogHeader>Transaction Execution</AlertDialogHeader>
@@ -196,7 +621,7 @@ const ObjectPage: NextPage = () => {
                     Are you sure you want to execute this transaction? This will cost a transaction fee.
                   </AlertDialogBody>
                   <AlertDialogFooter as={Flex} experimental_spaceX={4}>
-                    <Button onClick={on_2DialogClose} ref={_2DialogCancelRef}>
+                    <Button onClick={on_5DialogClose} ref={_5DialogCancelRef}>
                       Cancel
                     </Button>
                     <Button
@@ -211,21 +636,18 @@ const ObjectPage: NextPage = () => {
                 </AlertDialogContent>
               </AlertDialogOverlay>
             </AlertDialog>
-            <Box p={1}>
-              <Text fontSize="l">Mint data access-NFT for this Gaia-URL (Maximum 10).</Text>
-            </Box>
           </Flex>
 
-          {/* slkdjflksjdfkjskdjfsdj */}
+          {/* Enable/Disable accessNFT sharing */}
           <Text fontSize="xl" mb={2}>
-            Enable/disable sharing for a gaiaURL that you minted access-NFTs for.
+            Enable/Disable Access-NFT Sharing
           </Text>
           <Flex experimental_spaceX={4} mb={8}>
             <Box>
-              <Button leftIcon={<Icon as={Share2} />} colorScheme="blue" bg="blue.400" size="sm" onClick={on_3DialogOpen}>
+              <Button leftIcon={<Icon as={Share2} />} colorScheme="blue" bg="blue.400" size="sm" onClick={on_6DialogOpen}>
                 change-access-nft-activation
               </Button>
-              <AlertDialog isOpen={is_3DialogOpen} onClose={on_3DialogClose} leastDestructiveRef={_3DialogCancelRef}>
+              <AlertDialog isOpen={is_6DialogOpen} onClose={on_6DialogClose} leastDestructiveRef={_6DialogCancelRef}>
                 <AlertDialogOverlay>
                   <AlertDialogContent>
                     <AlertDialogHeader>Transaction Execution</AlertDialogHeader>
@@ -233,7 +655,7 @@ const ObjectPage: NextPage = () => {
                       Are you sure you want to execute this transaction? This will cost a transaction fee.
                     </AlertDialogBody>
                     <AlertDialogFooter as={Flex} experimental_spaceX={4}>
-                      <Button onClick={on_3DialogClose} ref={_3DialogCancelRef}>
+                      <Button onClick={on_6DialogClose} ref={_6DialogCancelRef}>
                         Cancel
                       </Button>
                       <Button
@@ -242,50 +664,46 @@ const ObjectPage: NextPage = () => {
                         onClick={async () => await changeAcessNFTActivation()}
                         isLoading={isLoading}
                       >
-                        test
+                        Change
                       </Button>
                     </AlertDialogFooter>
                   </AlertDialogContent>
                 </AlertDialogOverlay>
               </AlertDialog>
             </Box>
-            <Box p={1}>
-              <Text fontSize="l">Enable/disable NFT access for this Gaia-URL.</Text>
-            </Box>
           </Flex>
 
-          {/* slkdjflksjdfkjskdjfsdj */}
           <Text fontSize="xl" mb={2}>
             You want to check whether this worked?
           </Text>
+
+          {/* Get owner of ownerNFT */}
           <Flex experimental_spaceX={4} mb={2}>
             <Box>
-              <Input mb={2} placeholder="Copy Gaia-URL here" />
-              <Button leftIcon={<Icon as={Share2} />} colorScheme="blue" bg="blue.400" size="sm" onClick={test}>
+              <Button leftIcon={<Icon as={Share2} />} colorScheme="blue" bg="blue.400" size="sm" onClick={getOwnershipNFTOwner}>
                 get-ownerhsip-nft-owner
               </Button>
             </Box>
             <Box p={1}>
-              <Text fontSize="l">Retrieve the ownership-NFT owner for a Gaia-URL.</Text>
+              <Text fontSize="l">Get the owner of the Ownership-NFT.</Text>
             </Box>
           </Flex>
 
-          {/* slkdjflksjdfkjskdjfsdj */}
+          {/* Get List of accessNFT Owners */}
           <Flex experimental_spaceX={4} mb={2}>
             <Box>
-              <Input mb={2} placeholder="Copy Gaia-URL here" />
-              <Button leftIcon={<Icon as={Share2} />} colorScheme="blue" bg="blue.400" size="sm" onClick={test}>
+              <Button leftIcon={<Icon as={Share2} />} colorScheme="blue" bg="blue.400" size="sm" onClick={listOfAccessNFT}>
                 list-of-access-nft
               </Button>
             </Box>
             <Box p={1}>
-              <Text fontSize="l">Retrieve all active access-NFT URI's for a Gaia-URL.</Text>
+              <Text fontSize="l">Retrieve all active Access-NFT URI's.</Text>
             </Box>
           </Flex>
 
           {/* Get Access NFT Owner */}
           <Flex experimental_spaceX={4} mb={2}>
-            <NumberInput defaultValue={0} min={0} value={String(numberInput)} onChange={(value) => setNumberInput(Number(value))}>
+            <NumberInput defaultValue={1} min={1} value={String(numberInput)} onChange={(value) => setNumberInput(Number(value))}>
               <NumberInputField />
               <NumberInputStepper>
                 <NumberIncrementStepper />
@@ -296,7 +714,7 @@ const ObjectPage: NextPage = () => {
               get-access-nft-owner
             </Button>
             <Box p={1}>
-              <Text fontSize="l">Retrieve the access-NFT owner for a Token-URI.</Text>
+              <Text fontSize="l">Get the owner of one of the Access-NFT URI's retrieved above.</Text>
             </Box>
           </Flex>
         </>

@@ -20,6 +20,7 @@
 (define-constant err-already-added (err u1002))
 (define-constant err-already-removed (err u1003))
 (define-constant err-already-ten-entries (err u1004))
+(define-constant err-empty-map (err u1005))
 
 ;; ------------------------------
 ;; data maps and vars
@@ -53,7 +54,7 @@
 
 ;; A function checking whether the caller is a data-owner
 (define-private (check-data-owner (url (string-ascii 100)))
-    (ok (asserts! (is-eq (get-data-owner url) contract-caller) err-unauthorised))
+    (ok (asserts! (is-eq (unwrap! (get-data-owner url) err-empty-map) contract-caller) err-unauthorised))
 )
 
 ;; A function checking whether the caller is a data-accessor
@@ -141,7 +142,8 @@
 
 ;; A function to retrieve the data-owner for a given URL
 (define-read-only (get-data-owner (url (string-ascii 100)))
-	(unwrap-panic (map-get? data-owners url))
+	;;(unwrap-panic (map-get? data-owners url))
+    (ok (unwrap! (map-get? data-owners url) err-empty-map))
 )
 
 ;; A function to retrieve the list of data-accessors for a given URL
