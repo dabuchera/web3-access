@@ -21,6 +21,7 @@
 (define-constant err-already-added (err u1002))
 (define-constant err-no-owner-yet (err u1003))
 (define-constant err-already-ten-entries (err u1004))
+(define-constant err-empty-map (err u1005))
 
 ;; ------------------------------
 ;; data maps and vars
@@ -53,7 +54,7 @@
 
 ;; A function comparing the ownershipNFT owner with the caller
 (define-private (check-nft-owner (url (string-ascii 100)))
-	(ok (asserts! (is-eq (unwrap-panic (get-ownerhsip-nft-owner url)) contract-caller) err-unauthorised))
+	(ok (asserts! (is-eq (unwrap-panic (get-ownership-nft-owner url)) contract-caller) err-unauthorised))
 )
 
 ;; ------------------------------
@@ -126,13 +127,13 @@
 
 ;; A function to retrieve the ownership-nft uri for a given URL
 (define-read-only (which-ownership-nft (url (string-ascii 100)))
-	(unwrap-panic (map-get? data-ownership-nfts url))
+	(ok (unwrap! (map-get? data-ownership-nfts url) err-empty-map))
 )
 
 ;; A function to retrieve the owner of a ownership-nft url, if none it returns an error
-(define-read-only (get-ownerhsip-nft-owner (url (string-ascii 100)))
-    (let ((owner (unwrap! (contract-call? .ownershipNFT get-owner (which-ownership-nft url)) err-no-owner-yet)))
-        (ok (unwrap-panic owner))
+(define-read-only (get-ownership-nft-owner (url (string-ascii 100)))
+    (let ((owner (unwrap-panic (contract-call? .ownershipNFT get-owner (unwrap! (which-ownership-nft url) err-empty-map)))))
+        (ok (unwrap! owner err-no-owner-yet))
     )
 )
 
@@ -154,7 +155,7 @@
 ;; A function to retrieve the owner of a access-nft uri, if none it returns an error
 ;; The uri has to be retrieved from the list of uri for a given url, calling the "list-of-access-nft" function
 (define-read-only (get-access-nft-owner (uri uint))
-    (let ((owner (unwrap! (contract-call? .accessNFT get-owner uri) err-no-owner-yet)))
-        (ok (unwrap-panic owner))
+    (let ((owner (unwrap-panic (contract-call? .accessNFT get-owner uri))))
+        (ok (unwrap! owner err-no-owner-yet))
     )
 )
