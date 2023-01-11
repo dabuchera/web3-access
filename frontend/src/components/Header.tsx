@@ -4,6 +4,7 @@ import { Home, Play, Menu, Upload, X, Info, UserCheck } from 'react-feather'
 import NextLink from 'next/link'
 import { LogIn, LogOut } from 'react-feather'
 import Logo from '@/components/Logo'
+import truncateMiddle from '@/lib/truncate'
 
 interface NavItem {
   label: string
@@ -12,11 +13,11 @@ interface NavItem {
 }
 
 const NAV_ITEMS: Array<NavItem> = [
-  {
-    label: 'Playground',
-    href: '/playground',
-    icon: Play,
-  },
+  // {
+  //   label: 'Playground',
+  //   href: '/playground',
+  //   icon: Play,
+  // },
   {
     label: 'Home',
     href: '/',
@@ -32,17 +33,12 @@ const NAV_ITEMS: Array<NavItem> = [
     href: '/overview',
     icon: Info,
   },
-  {
-    label: 'Data Sharing Control',
-    href: '/control',
-    icon: UserCheck,
-  },
 ]
 
 const Header = () => {
   const { isOpen, onToggle } = useDisclosure()
 
-  const { authenticate, logout, userData } = useAuth()
+  const { authenticate, logout, userData, useSTXAddress } = useAuth()
 
   return (
     <Box>
@@ -78,22 +74,26 @@ const Header = () => {
         </NextLink>
 
         <DesktopNav />
-
-        {userData ? (
-          <Button onClick={logout} leftIcon={<Icon as={LogOut} />}>
-            Disconnect Wallet
-          </Button>
-        ) : (
-          <Button
-            onClick={authenticate}
-            bg="blue.600"
-            color="white"
-            _hover={{ bg: 'blue.500' }}
-            leftIcon={<Icon as={LogIn} />}
-          >
-            Connect Wallet
-          </Button>
-        )}
+        <>
+          {userData ? (
+            <Flex>
+              <Button mr={5}>{truncateMiddle(useSTXAddress())}</Button>
+              <Button onClick={logout} leftIcon={<Icon as={LogOut} />}>
+                Disconnect Wallet
+              </Button>
+            </Flex>
+          ) : (
+            <Button
+              onClick={authenticate}
+              bg="blue.600"
+              color="white"
+              _hover={{ bg: 'blue.500' }}
+              leftIcon={<Icon as={LogIn} />}
+            >
+              Connect Wallet
+            </Button>
+          )}
+        </>
       </Flex>
 
       <Collapse in={isOpen} animateOpacity>
