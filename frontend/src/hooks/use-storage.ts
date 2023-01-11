@@ -267,6 +267,7 @@ export const useStorage = () => {
       const metadata = await storage.getFile(PRIVATE_METADATA_FILE_PATH, {
         decrypt: true,
       })
+      console.log(metadata)
       if (!metadata) return null
       return JSON.parse(metadata as string)
     } catch (err) {
@@ -433,7 +434,8 @@ export const useStorage = () => {
         privateKey: '4e185081062dd819e0f251864817957704f17bb07baef49fa447bbbeb8b143e5',
       })
 
-      await saveFile(path, encryptedData, true, true, file.dataType)
+      // await saveFile(path, encryptedData, true, true, file.dataType)
+      await saveFile(path, encryptedData, true, true, file.isString)
     }
     // Revoke sharing
     else {
@@ -460,7 +462,8 @@ export const useStorage = () => {
 
       await refreshMetadata()
 
-      await saveFile(path, data, false, false, file.dataType)
+      // await saveFile(path, data, false, false, file.dataType)
+      await saveFile(path, data, false, false, file.isString)
     }
   }
 
