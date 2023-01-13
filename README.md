@@ -8,7 +8,7 @@ Follow the instructions below to test the prototype.
 
 ## Test the Prototype
 
-We deployed a test intstance of the prototype so you can try it. The smart contracts are deployed on the Stacks testnet (here, here, and here). The dApp is accessible under this URL: ...
+We deployed a test intstance of the prototype so you can try it. The smart contracts are deployed on the Stacks testnet ([RolesAccess](https://explorer.stacks.co/txid/0xe44bb9f8a8211b6062be8c992e51dee3ad3a1de4524ff52e4054e8ead471a6a5?chain=testnet), [TokenAccess](https://explorer.stacks.co/txid/0x84e1eecd85f5e6b0c042ccba695fb9ee9ff3d2b3ecae587785b5d4e9c509d7f5?chain=testnet)). The dApp is accessible [here]().
 
 Follow this tutorial to store and access files:
 1. Install [Hiro Wallet](https://wallet.hiro.so/) for the browser of your choice. Follow the set up process and carefully memorize your Seed and password if you plan to reuse your account at a later stage.
@@ -20,7 +20,7 @@ Follow this tutorial to store and access files:
 
 ### Deploy Contracts
 
-We use [Stacks](https://stacks.org/) for this protoype with smart contracts written in [Clarity](https://book.clarity-lang.org/).
+We use [Stacks](https://www.stacks.co/) for this protoype with smart contracts written in [Clarity](https://book.clarity-lang.org/).
 
 To run and test the smart contracts locally, you can deploy them to a local network.
 
