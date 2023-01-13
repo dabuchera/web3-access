@@ -36,7 +36,17 @@ import { IPrivateFile, IPublicFile } from '@/types/storage'
 import { contractOwnerAddress, appDetails } from '@/lib/constants'
 import { ContractCallRegularOptions, openContractCall } from '@stacks/connect'
 import { url } from 'inspector'
-import { callReadOnlyFunction, stringAsciiCV, uintCV, cvToValue, standardPrincipalCV} from '@stacks/transactions'
+import { 
+  callReadOnlyFunction, 
+  stringAsciiCV, 
+  uintCV, 
+  cvToValue, 
+  standardPrincipalCV,
+  NonFungibleConditionCode,
+  createAssetInfo,
+  makeStandardNonFungiblePostCondition,
+  PostConditionMode
+} from '@stacks/transactions'
 import { StacksNetwork, StacksTestnet, StacksMocknet } from '@stacks/network'
 import { useAuth } from '@/hooks/use-auth'
 
@@ -52,8 +62,10 @@ const ObjectPage: NextPage = () => {
   const [metadata, setMetadata] = useState<IPrivateFile | IPublicFile>()
 
   const inputRef = useRef<HTMLInputElement>(null)
-  const [numberInput, setNumberInput] = useState<number>(1)
-  const [addressInput, setAddressInput] = useState<string>('')
+  const [numberInput1, setNumberInput1] = useState<number>(1)
+  const [numberInput2, setNumberInput2] = useState<number>(1)
+  const [addressInput1, setAddressInput1] = useState<string>('')
+  const [addressInput2, setAddressInput2] = useState<string>('')
 
   const { isLoading: isLoading, startLoading: startLoading, stopLoading: stopLoading } = useLoading()
 
@@ -74,6 +86,9 @@ const ObjectPage: NextPage = () => {
 
   const { isOpen: is_6DialogOpen, onOpen: on_6DialogOpen, onClose: on_6DialogClose } = useDisclosure()
   const _6DialogCancelRef = useRef<HTMLButtonElement>() as MutableRefObject<HTMLButtonElement>
+
+  const { isOpen: is_7DialogOpen, onOpen: on_7DialogOpen, onClose: on_7DialogClose } = useDisclosure()
+  const _7DialogCancelRef = useRef<HTMLButtonElement>() as MutableRefObject<HTMLButtonElement>
 
   useEffect(() => {
     const fetchFile = async () => {
@@ -127,7 +142,7 @@ const ObjectPage: NextPage = () => {
       contractAddress: contractOwnerAddress,
       contractName: 'rolesAccess',
       functionName: 'add-data-accessor',
-      functionArgs: [stringAsciiCV(metadata.url), standardPrincipalCV(addressInput)],
+      functionArgs: [stringAsciiCV(metadata.url), standardPrincipalCV(addressInput1)],
       postConditions: [],
       appDetails,
       onFinish: (data) => {
@@ -296,6 +311,52 @@ const ObjectPage: NextPage = () => {
     await openContractCall(options)
   }
 
+  // (transfer (token-id uint) (sender principal) (recipient principal))
+  const transferAccessNFT = async () => {
+    const address = useSTXAddress()
+    if(!address){
+      return null
+    }
+    const url = metadata?.url
+    if (!url) {
+      return null
+    }
+    // With a standard principal
+    const postConditionAddress = address
+    const postConditionCode = NonFungibleConditionCode.DoesNotOwn
+    const assetAddress = contractOwnerAddress
+    const assetContractName = 'accessNFT'
+    const assetName = 'accessNFT'
+    // const tokenAssetName = stringAsciiCV('accessNFT')
+    const tokenAssetName = uintCV(numberInput1)
+    const nonFungibleAssetInfo = createAssetInfo(assetAddress, assetContractName, assetName)
+    const standardNonFungiblePostCondition = 
+      makeStandardNonFungiblePostCondition(
+        postConditionAddress,
+        postConditionCode,
+        nonFungibleAssetInfo,
+        tokenAssetName
+      )
+    const options: ContractCallRegularOptions = {
+      contractAddress: contractOwnerAddress,
+      contractName: 'accessNFT',
+      functionName: 'transfer',
+      functionArgs: [uintCV(numberInput1), standardPrincipalCV(address), standardPrincipalCV(addressInput2)],
+      postConditionMode: PostConditionMode.Deny,
+      postConditions: [standardNonFungiblePostCondition],
+      appDetails,
+      onFinish: (data) => {
+        on_1DialogClose()
+        toast({
+          title: 'Transaction succeeded',
+          description: 'Congrats, your access-NFT is being transferred.',
+          status: 'success',
+        })
+      },
+    }
+    await openContractCall(options)
+  }
+
   // (change-access-nft-activation (url (string-ascii 100)))
   const changeAcessNFTActivation = async () => {
     const url = metadata?.url
@@ -409,7 +470,7 @@ const ObjectPage: NextPage = () => {
       contractAddress: contractOwnerAddress,
       contractName: 'tokenAccess',
       functionName: 'get-access-nft-owner',
-      functionArgs: [uintCV(numberInput)],
+      functionArgs: [uintCV(numberInput2)],
       senderAddress: address,
       network
     })
@@ -477,7 +538,7 @@ const ObjectPage: NextPage = () => {
             Register Address for Access-Role (max. 10)
           </Text>
           <Flex experimental_spaceX={4} mb={8}>
-            <Input mb={2} placeholder='Copy Stacks-Address here' value={addressInput} onChange={(event) => setAddressInput(event.target.value)}/>
+            <Input mb={2} placeholder='Copy Stacks-Address here' value={addressInput1} onChange={(event) => setAddressInput1(event.target.value)}/>
             <Button leftIcon={<Icon as={Share2} />} colorScheme="blue" bg="blue.400" size="sm" onClick={on_2DialogOpen}>
               add-data-accessor
             </Button>
@@ -553,7 +614,7 @@ const ObjectPage: NextPage = () => {
               </Button>
             </Box>
             <Box p={1}>
-              <Text fontSize="l">Who is the ownership-Role?</Text>
+              <Text fontSize="l">Get address with the Ownership-Role.</Text>
             </Box>
           </Flex>
 
@@ -565,7 +626,7 @@ const ObjectPage: NextPage = () => {
               </Button>
             </Box>
             <Box p={1}>
-              <Text fontSize="l">Retrieve all addresses with the access-Role.</Text>
+              <Text fontSize="l">Retrieve all addresses that have the Access-Role.</Text>
             </Box>
           </Flex>
           
@@ -638,16 +699,57 @@ const ObjectPage: NextPage = () => {
             </AlertDialog>
           </Flex>
 
+          {/* Transfer accessNFT */}
+          <Text fontSize="xl" mb={2}>
+            Transfer an Access-NFT. Specify the URI and Receiver of the NFT.
+          </Text>
+          <Flex experimental_spaceX={4} mb={8}>
+            <NumberInput defaultValue={1}  min={1} value={String(numberInput1)} onChange={(value) => setNumberInput1(Number(value))}>
+              <NumberInputField />
+              <NumberInputStepper>
+                <NumberIncrementStepper />
+                <NumberDecrementStepper />
+              </NumberInputStepper>
+            </NumberInput>
+            <Input mb={2} placeholder='Copy Stacks-Address here' value={addressInput2} onChange={(event) => setAddressInput2(event.target.value)}/>
+            <Button leftIcon={<Icon as={Share2} />} colorScheme="blue" bg="blue.400" size="sm" onClick={on_6DialogOpen}>
+              transfer
+            </Button>
+            <AlertDialog isOpen={is_6DialogOpen} onClose={on_5DialogClose} leastDestructiveRef={_6DialogCancelRef}>
+              <AlertDialogOverlay>
+                <AlertDialogContent>
+                  <AlertDialogHeader>Transaction Execution</AlertDialogHeader>
+                  <AlertDialogBody>
+                    Are you sure you want to execute this transaction? This will cost a transaction fee.
+                  </AlertDialogBody>
+                  <AlertDialogFooter as={Flex} experimental_spaceX={4}>
+                    <Button onClick={on_6DialogClose} ref={_6DialogCancelRef}>
+                      Cancel
+                    </Button>
+                    <Button
+                      colorScheme="blue"
+                      bg="blue.400"
+                      onClick={async () => await transferAccessNFT()}
+                      isLoading={isLoading}
+                    >
+                      Transfer
+                    </Button>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialogOverlay>
+            </AlertDialog>
+          </Flex>
+
           {/* Enable/Disable accessNFT sharing */}
           <Text fontSize="xl" mb={2}>
             Enable/Disable Access-NFT Sharing
           </Text>
           <Flex experimental_spaceX={4} mb={8}>
             <Box>
-              <Button leftIcon={<Icon as={Share2} />} colorScheme="blue" bg="blue.400" size="sm" onClick={on_6DialogOpen}>
+              <Button leftIcon={<Icon as={Share2} />} colorScheme="blue" bg="blue.400" size="sm" onClick={on_7DialogOpen}>
                 change-access-nft-activation
               </Button>
-              <AlertDialog isOpen={is_6DialogOpen} onClose={on_6DialogClose} leastDestructiveRef={_6DialogCancelRef}>
+              <AlertDialog isOpen={is_7DialogOpen} onClose={on_7DialogClose} leastDestructiveRef={_7DialogCancelRef}>
                 <AlertDialogOverlay>
                   <AlertDialogContent>
                     <AlertDialogHeader>Transaction Execution</AlertDialogHeader>
@@ -655,7 +757,7 @@ const ObjectPage: NextPage = () => {
                       Are you sure you want to execute this transaction? This will cost a transaction fee.
                     </AlertDialogBody>
                     <AlertDialogFooter as={Flex} experimental_spaceX={4}>
-                      <Button onClick={on_6DialogClose} ref={_6DialogCancelRef}>
+                      <Button onClick={on_7DialogClose} ref={_7DialogCancelRef}>
                         Cancel
                       </Button>
                       <Button
@@ -703,7 +805,7 @@ const ObjectPage: NextPage = () => {
 
           {/* Get Access NFT Owner */}
           <Flex experimental_spaceX={4} mb={2}>
-            <NumberInput defaultValue={1} min={1} value={String(numberInput)} onChange={(value) => setNumberInput(Number(value))}>
+            <NumberInput defaultValue={1} min={1} value={String(numberInput2)} onChange={(value) => setNumberInput2(Number(value))}>
               <NumberInputField />
               <NumberInputStepper>
                 <NumberIncrementStepper />
