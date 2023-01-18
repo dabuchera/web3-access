@@ -54,10 +54,12 @@ const ObjectPage: NextPage = () => {
   const {
     query: { path },
   } = useRouter()
-  const { getFile, getFileMetadata } = useStorage()
+  const { getFile, getFileMetadata, listDataAccessors, listAccessNFT } = useStorage()
   const {useSTXAddress} =  useAuth()
 
   const toast = useToast()
+
+  const network = new StacksTestnet()
 
   const [metadata, setMetadata] = useState<IPrivateFile | IPublicFile>()
 
@@ -192,7 +194,6 @@ const ObjectPage: NextPage = () => {
     if (!url) {
       return null
     }
-    const network = new StacksTestnet()
     const operationalTemp = await callReadOnlyFunction({
       contractAddress: contractOwnerAddress,
       contractName: 'rolesAccess',
@@ -220,29 +221,18 @@ const ObjectPage: NextPage = () => {
 
    // (list-of-data-accessors (url (string-ascii 100)))
    const listOfDataAccessors = async () => {
-    const address = useSTXAddress()
-    if(!address){
-      return null
-    }
     const url = metadata?.url
     if (!url) {
       return null
     }
-    const network = new StacksTestnet()
-    const operationalTemp = await callReadOnlyFunction({
-      contractAddress: contractOwnerAddress,
-      contractName: 'rolesAccess',
-      functionName: 'list-of-data-accessors',
-      functionArgs: [stringAsciiCV(metadata.url)],
-      senderAddress: address,
-      network
-    })
-    const arr = cvToValue(operationalTemp)
+    const res = await listDataAccessors(url)
+    if(!res){
+      return null
+    }
     let show = ''
-    arr.forEach((element: { value: string }) => {
+    res.forEach((element: { value: string }) => {
       show += element.value + ', '
     });
-    console.log(show)
     if (!show){
       toast({
         title: 'Transaction failed',
@@ -392,7 +382,6 @@ const ObjectPage: NextPage = () => {
     if (!url) {
       return null
     }
-    const network = new StacksTestnet()
     const operationalTemp = await callReadOnlyFunction({
       contractAddress: contractOwnerAddress,
       contractName: 'tokenAccess',
@@ -420,29 +409,18 @@ const ObjectPage: NextPage = () => {
 
   // (list-of-access-nft (url (string-ascii 100)))
   const listOfAccessNFT = async () => {
-    const address = useSTXAddress()
-    if(!address){
-      return null
-    }
     const url = metadata?.url
     if (!url) {
       return null
     }
-    const network = new StacksTestnet()
-    const operationalTemp = await callReadOnlyFunction({
-      contractAddress: contractOwnerAddress,
-      contractName: 'tokenAccess',
-      functionName: 'list-of-access-nft',
-      functionArgs: [stringAsciiCV(metadata.url)],
-      senderAddress: address,
-      network
-    })
-    const arr = cvToValue(operationalTemp)
+    const res = await listAccessNFT(url)
+    if(!res){
+      return null
+    }
     let show = ''
-    arr.forEach((element: { value: string }) => {
+    res.forEach((element) => {
       show += element.value + ', '
     });
-    console.log(show)
     if (!show){
       toast({
         title: 'Transaction failed',
@@ -465,7 +443,6 @@ const ObjectPage: NextPage = () => {
     if(!address){
       return null
     }
-    const network = new StacksTestnet()
     const operationalTemp = await callReadOnlyFunction({
       contractAddress: contractOwnerAddress,
       contractName: 'tokenAccess',
@@ -538,8 +515,10 @@ const ObjectPage: NextPage = () => {
             Register Address for Access-Role (max. 10)
           </Text>
           <Flex experimental_spaceX={4} mb={8}>
-            <Input mb={2} placeholder='Copy Stacks-Address here' value={addressInput1} onChange={(event) => setAddressInput1(event.target.value)}/>
-            <Button leftIcon={<Icon as={Share2} />} colorScheme="blue" bg="blue.400" size="sm" onClick={on_2DialogOpen}>
+          <Flex>
+          <Input placeholder='Copy Stacks-Address here' value={addressInput1} onChange={(event) => setAddressInput1(event.target.value)}/>
+          </Flex>
+            <Button marginTop={1} leftIcon={<Icon as={Share2} />} colorScheme="blue" bg="blue.400" size="sm" onClick={on_2DialogOpen}>
               add-data-accessor
             </Button>
             <AlertDialog isOpen={is_2DialogOpen} onClose={on_2DialogClose} leastDestructiveRef={_2DialogCancelRef}>
@@ -602,32 +581,24 @@ const ObjectPage: NextPage = () => {
             </Box>
           </Flex>
 
-          <Text fontSize="xl" mb={2}>
+          <Text fontSize="xl" mb={8}>
             You want to check whether this worked?
           </Text>
 
           {/* Get address that has ownership role */}
           <Flex experimental_spaceX={4} mb={2}>
-            <Box>
+          <Text fontSize="l">Get address with the Ownership-Role.</Text>
               <Button leftIcon={<Icon as={Share2} />} colorScheme="blue" bg="blue.400" size="sm" onClick={getDataOwner}>
                 get-data-owner
               </Button>
-            </Box>
-            <Box p={1}>
-              <Text fontSize="l">Get address with the Ownership-Role.</Text>
-            </Box>
           </Flex>
 
           {/* Get list of addresses that have access role */}
           <Flex experimental_spaceX={4} mb={8}>
-            <Box>
+          <Text fontSize="l">Retrieve all addresses that have the Access-Role.</Text>
               <Button leftIcon={<Icon as={Share2} />} colorScheme="blue" bg="blue.400" size="sm" onClick={listOfDataAccessors}>
                 list-of-data-accessors
               </Button>
-            </Box>
-            <Box p={1}>
-              <Text fontSize="l">Retrieve all addresses that have the Access-Role.</Text>
-            </Box>
           </Flex>
           
           {/* --------------  TOKEN FUNCTIONS -------------- */}
@@ -704,17 +675,21 @@ const ObjectPage: NextPage = () => {
             Transfer an Access-NFT. Specify the URI and Receiver of the NFT.
           </Text>
           <Flex experimental_spaceX={4} mb={8}>
-            <NumberInput defaultValue={1}  min={1} value={String(numberInput1)} onChange={(value) => setNumberInput1(Number(value))}>
+            <Box>
+            <NumberInput size="md" defaultValue={1} min={1} value={String(numberInput1)} onChange={(value) => setNumberInput1(Number(value))}>
               <NumberInputField />
-              <NumberInputStepper>
+              <NumberInputStepper  >
                 <NumberIncrementStepper />
                 <NumberDecrementStepper />
               </NumberInputStepper>
             </NumberInput>
+            </Box>
             <Input mb={2} placeholder='Copy Stacks-Address here' value={addressInput2} onChange={(event) => setAddressInput2(event.target.value)}/>
-            <Button leftIcon={<Icon as={Share2} />} colorScheme="blue" bg="blue.400" size="sm" onClick={on_6DialogOpen}>
+            <Box>
+            <Button marginTop={1} leftIcon={<Icon as={Share2} />} colorScheme="blue" bg="blue.400" size="sm" onClick={on_6DialogOpen}>
               transfer
             </Button>
+            </Box>
             <AlertDialog isOpen={is_6DialogOpen} onClose={on_5DialogClose} leastDestructiveRef={_6DialogCancelRef}>
               <AlertDialogOverlay>
                 <AlertDialogContent>
@@ -781,29 +756,30 @@ const ObjectPage: NextPage = () => {
 
           {/* Get owner of ownerNFT */}
           <Flex experimental_spaceX={4} mb={2}>
+          <Box p={1}>
+              <Text fontSize="l">Get the owner of the Ownership-NFT.</Text>
+            </Box>
             <Box>
               <Button leftIcon={<Icon as={Share2} />} colorScheme="blue" bg="blue.400" size="sm" onClick={getOwnershipNFTOwner}>
                 get-ownerhsip-nft-owner
               </Button>
             </Box>
-            <Box p={1}>
-              <Text fontSize="l">Get the owner of the Ownership-NFT.</Text>
-            </Box>
           </Flex>
 
           {/* Get List of accessNFT Owners */}
           <Flex experimental_spaceX={4} mb={2}>
+          <Box p={1}>
+              <Text fontSize="l">Retrieve all active Access-NFT URI's.</Text>
+            </Box>
             <Box>
               <Button leftIcon={<Icon as={Share2} />} colorScheme="blue" bg="blue.400" size="sm" onClick={listOfAccessNFT}>
                 list-of-access-nft
               </Button>
             </Box>
-            <Box p={1}>
-              <Text fontSize="l">Retrieve all active Access-NFT URI's.</Text>
-            </Box>
           </Flex>
 
           {/* Get Access NFT Owner */}
+          <Text fontSize="l" mb={2} mt={2}>Get the owner of one of the Access-NFT URI's retrieved above.</Text>
           <Flex experimental_spaceX={4} mb={2}>
             <NumberInput defaultValue={1} min={1} value={String(numberInput2)} onChange={(value) => setNumberInput2(Number(value))}>
               <NumberInputField />
@@ -812,12 +788,9 @@ const ObjectPage: NextPage = () => {
                 <NumberDecrementStepper />
               </NumberInputStepper>
             </NumberInput>
-            <Button leftIcon={<Icon as={Share2} />} colorScheme="blue" bg="blue.400" size="sm" onClick={getAccessNFTOwner}>
+            <Button marginTop={1} leftIcon={<Icon as={Share2} />} colorScheme="blue" bg="blue.400" size="sm" onClick={getAccessNFTOwner}>
               get-access-nft-owner
             </Button>
-            <Box p={1}>
-              <Text fontSize="l">Get the owner of one of the Access-NFT URI's retrieved above.</Text>
-            </Box>
           </Flex>
         </>
       ) : (

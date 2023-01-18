@@ -24,6 +24,7 @@ import { useCallback, useEffect, useState } from 'react'
 import { useDropzone, FileRejection } from 'react-dropzone'
 import { FilePlus, Upload as UploadIcon } from 'react-feather'
 import NextLink from 'next/link'
+import { AccessControl } from '@/types/storage'
 
 const MAX_FILE_SIZE = 15728640 // 20971520 is the max file size set by the default blockstack gaia hub. However, encryption increases the file size to almost 20MB (for a 15MB file).
 
@@ -120,11 +121,11 @@ const Upload = () => {
 
   const handleFilenameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     // console.log(filesNames.includes(e.target.value))
-    if (filesNames.includes(e.target.value)) {
-      e.target.value = ''
-      setFilename('')
-      return null
-    }
+    // if (filesNames.includes(e.target.value)) {
+    //   e.target.value = ''
+    //   setFilename('')
+    //   return null
+    // }
     setFilename(e.target.value)
   }
 
@@ -133,10 +134,24 @@ const Upload = () => {
   }
 
   const handleUpload = async () => {
+    if (filesNames.includes(filename)) {
+      console.log('Name already exist')
+      toast({
+        title: 'Name already exist',
+        description: ('Please use another Name'),
+        status: 'warning',
+      })
+      return null
+    }
+
     startUploadLoading()
 
     try {
-      const url = await saveFile(filename, data, isPublic, false, dataType === 'text')
+      const accessControl: AccessControl = isPublic ? 'public' : 'private'
+      const encrypted = !isPublic
+
+      // console.log(filename, accessControl, encrypted, data, dataType === 'text')
+      const url = await saveFile(filename, accessControl, encrypted, data, dataType === 'text')
 
       toast({
         title: 'File uploaded',

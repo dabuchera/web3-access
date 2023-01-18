@@ -33,17 +33,18 @@ import { Type, FileText, Share2, Trash2, Copy, Check } from 'react-feather'
 import NextLink from 'next/link'
 import useLoading from '@/hooks/use-loading'
 import { useStorage } from '@/hooks/use-storage'
+import { AccessControl } from '@/types/storage'
 
 interface IFileProps {
   path: string
-  isPublic: boolean
+  accessControl: AccessControl
+  encrypted: boolean
   isString: boolean
   lastModified: string
-  shared: boolean
   url: string
 }
 
-const File = ({ path, isPublic, isString, lastModified, shared, url }: IFileProps) => {
+const File = ({ path, accessControl, encrypted, isString, lastModified, url }: IFileProps) => {
   const { toggleshareFile, deleteFile } = useStorage()
   const toast = useToast()
 
@@ -58,7 +59,7 @@ const File = ({ path, isPublic, isString, lastModified, shared, url }: IFileProp
   const shareDialogCancelRef = useRef<HTMLButtonElement>() as MutableRefObject<HTMLButtonElement>
 
   useEffect(() => {
-    console.log({ path, isPublic, isString, lastModified, shared, url })
+    // console.log({ path, accessControl, encrypted, isString, lastModified, url })
   }, [])
 
   const handleShareFile = async (path: string) => {
@@ -131,7 +132,14 @@ const File = ({ path, isPublic, isString, lastModified, shared, url }: IFileProp
             {path}
           </LinkOverlay>
         </NextLink>
-        {isPublic ? (
+        {
+          {
+            public: <Badge colorScheme="green">Public</Badge>,
+            private: <Badge colorScheme="red">Private</Badge>,
+            shared: <Badge colorScheme="orange">Shared</Badge>,
+          }[accessControl]
+        }
+        {/* {isPublic ? (
           shared ? (
             <Badge colorScheme="orange">Shared</Badge>
           ) : (
@@ -139,7 +147,7 @@ const File = ({ path, isPublic, isString, lastModified, shared, url }: IFileProp
           )
         ) : (
           <Badge colorScheme="red">Private</Badge>
-        )}
+        )} */}
       </HStack>
       <Box>
         <Tooltip label={format(new Date(lastModified), 'PPPPpppp')}>
@@ -147,49 +155,21 @@ const File = ({ path, isPublic, isString, lastModified, shared, url }: IFileProp
         </Tooltip>
       </Box>
 
+      {/* Copy Gaia URL */}
       <Flex experimental_spaceX={4}>
-        {isPublic && !shared ? (
-          <></>
-        ) : (
-          <Box>
-            <Button
-              leftIcon={<Icon as={Share2} />}
-              colorScheme="blue"
-              bg="blue.400"
-              size="sm"
-              onClick={onShareAlertDialogOpen}
-            >
-              {!shared ? 'Allow Sharing' : 'Revoke Sharing'}
-            </Button>
-            <AlertDialog
-              isOpen={isShareAlertDialogOpen}
-              onClose={onShareAlertDialogClose}
-              leastDestructiveRef={shareDialogCancelRef}
-            >
-              <AlertDialogOverlay>
-                <AlertDialogContent>
-                  <AlertDialogHeader>Share File</AlertDialogHeader>
-                  <AlertDialogBody>
-                    Are you sure you want to share this file? This operation cannot be undone.
-                  </AlertDialogBody>
-                  <AlertDialogFooter as={Flex} experimental_spaceX={4}>
-                    <Button onClick={onShareAlertDialogClose} ref={shareDialogCancelRef}>
-                      Cancel
-                    </Button>
-                    <Button
-                      colorScheme="blue"
-                      bg="blue.400"
-                      onClick={async () => await handleShareFile(path)}
-                      isLoading={isLoading}
-                    >
-                      {!shared ? 'Allow Sharing' : 'Revoke Sharing'}
-                    </Button>
-                  </AlertDialogFooter>
-                </AlertDialogContent>
-              </AlertDialogOverlay>
-            </AlertDialog>
-          </Box>
-        )}
+        <Box>
+          <Button
+            width="140px"
+            backgroundColor={hasCopiedGaiaUrl ? 'green.400' : 'cyan.400'}
+            colorScheme={hasCopiedGaiaUrl ? 'green' : 'cyan'}
+            leftIcon={hasCopiedGaiaUrl ? <Icon as={Check} /> : <Icon as={Copy} />}
+            size="sm"
+            onClick={onCopyGaiaUrl}
+          >
+            Copy Gaia URL
+          </Button>
+        </Box>
+
         {/* Delete Button and Modal */}
         <Box>
           <Button leftIcon={<Icon as={Trash2} />} colorScheme="red" bg="red.400" size="sm" onClick={onDeleteAlertDialogOpen}>
@@ -224,11 +204,52 @@ const File = ({ path, isPublic, isString, lastModified, shared, url }: IFileProp
           </AlertDialog>
         </Box>
       </Flex>
-      {/* Sharing Control */}
+
+      {/* Allow / Revoke Sharing */}
       <Flex experimental_spaceX={4}>
-        {!shared ? (
+        {accessControl === 'public' ? (
           <></>
         ) : (
+          <Box>
+            <Button
+              width="140px"
+              leftIcon={<Icon as={Share2} />}
+              colorScheme="blue"
+              bg="blue.400"
+              size="sm"
+              onClick={onShareAlertDialogOpen}
+            >
+              {accessControl === 'private' ? 'Allow Sharing' : 'Revoke Sharing'}
+            </Button>
+            <AlertDialog
+              isOpen={isShareAlertDialogOpen}
+              onClose={onShareAlertDialogClose}
+              leastDestructiveRef={shareDialogCancelRef}
+            >
+              <AlertDialogOverlay>
+                <AlertDialogContent>
+                  <AlertDialogHeader>Share File</AlertDialogHeader>
+                  <AlertDialogBody>Are you sure you want to share this file?</AlertDialogBody>
+                  <AlertDialogFooter as={Flex} experimental_spaceX={4}>
+                    <Button onClick={onShareAlertDialogClose} ref={shareDialogCancelRef}>
+                      Cancel
+                    </Button>
+                    <Button
+                      colorScheme="blue"
+                      bg="blue.400"
+                      onClick={async () => await handleShareFile(path)}
+                      isLoading={isLoading}
+                    >
+                      {accessControl === 'private' ? 'Allow Sharing' : 'Revoke Sharing'}
+                    </Button>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialogOverlay>
+            </AlertDialog>
+          </Box>
+        )}
+        {/* Sharing Control */}
+        {accessControl === 'shared' ? (
           <Box>
             <a href={`/sharingcontrol/${path}`}>
               <Button leftIcon={<Icon as={Share2} />} colorScheme="blue" bg="blue.100" size="sm">
@@ -236,48 +257,8 @@ const File = ({ path, isPublic, isString, lastModified, shared, url }: IFileProp
               </Button>
             </a>
           </Box>
-        )}
-      </Flex>
-      {/* Copy Gaia URL */}
-      <Flex experimental_spaceX={4}>
-        {isPublic ? (
-          <Button
-            backgroundColor={hasCopiedGaiaUrl ? 'green.400' : 'cyan.400'}
-            colorScheme={hasCopiedGaiaUrl ? 'green' : 'cyan'}
-            leftIcon={hasCopiedGaiaUrl ? <Icon as={Check} /> : <Icon as={Copy} />}
-            size="sm"
-            onClick={onCopyGaiaUrl}
-          >
-            Copy Gaia URL
-          </Button>
         ) : (
-          <Popover trigger="click">
-            <PopoverTrigger>
-              <Button colorScheme="cyan" backgroundColor="cyan.400" leftIcon={<Icon as={Copy} />} size="sm">
-                Copy Gaia URL
-              </Button>
-            </PopoverTrigger>
-            <PopoverContent>
-              <PopoverArrow />
-              <PopoverCloseButton />
-              <PopoverHeader>Private File</PopoverHeader>
-              <PopoverBody>
-                <Text>
-                  This is a private file. You can go to the Gaia URL but you will only be able to see the encrypted content
-                </Text>
-                <Button
-                  leftIcon={hasCopiedGaiaUrl ? <Icon as={Check} /> : <Icon as={Copy} />}
-                  size="sm"
-                  mt={2}
-                  backgroundColor={hasCopiedGaiaUrl ? 'green.400' : 'cyan.400'}
-                  colorScheme={hasCopiedGaiaUrl ? 'green' : 'cyan'}
-                  onClick={onCopyGaiaUrl}
-                >
-                  Copy private Gaia URL
-                </Button>
-              </PopoverBody>
-            </PopoverContent>
-          </Popover>
+          <></>
         )}
       </Flex>
     </LinkBox>

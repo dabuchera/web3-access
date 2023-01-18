@@ -38,20 +38,19 @@ const OverviewFiles = () => {
       {isMetadataRefreshing ? (
         <Spinner />
       ) : (
-        <Grid templateColumns="repeat(auto-fit, minmax(300px, 1fr))" gap={6} w="100%">
+        <Grid templateColumns="repeat(auto-fit, minmax(500px, 1fr))" gap={6} w="100%">
           {publicMetadata && Object.keys(publicMetadata.files).length > 0 ? (
             Object.keys(publicMetadata.files).map((path) => {
-              const { isPublic, isString, lastModified, shared, url, userAddress }: IPublicFile = publicMetadata?.files[
-                path as keyof PublicMetadataFile['files']
-              ] as IPublicFile
+              const { accessControl, encrypted, isString, lastModified, url, userAddress }: IPublicFile = publicMetadata
+                ?.files[path as keyof PublicMetadataFile['files']] as IPublicFile
               return (
                 <OverviewFile
                   key={path}
                   path={path}
-                  isPublic={isPublic}
+                  accessControl={accessControl}
+                  encrypted={encrypted}
                   isString={isString}
                   lastModified={lastModified}
-                  shared={shared}
                   url={url}
                   userAddress={userAddress}
                 />

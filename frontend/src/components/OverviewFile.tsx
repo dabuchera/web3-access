@@ -4,18 +4,19 @@ import { Type, FileText } from 'react-feather'
 import NextLink from 'next/link'
 import truncateMiddle from '@/lib/truncate'
 import { useAuth } from '@/hooks/use-auth'
+import { AccessControl } from '@/types/storage'
 
 interface IOverviewFileProps {
   path: string
-  isPublic: boolean
+  accessControl: AccessControl
+  encrypted: boolean
   isString: boolean
   lastModified: string
-  shared: boolean
   url: string
   userAddress: string | undefined
 }
 
-const OverviewFile = ({ path, isPublic, isString, lastModified, shared, url, userAddress }: IOverviewFileProps) => {
+const OverviewFile = ({ path, accessControl, encrypted, isString, lastModified, url, userAddress }: IOverviewFileProps) => {
   const { useSTXAddress } = useAuth()
 
   return (
@@ -46,15 +47,13 @@ const OverviewFile = ({ path, isPublic, isString, lastModified, shared, url, use
             {path}
           </LinkOverlay>
         </NextLink>
-        {isPublic ? (
-          shared ? (
-            <Badge colorScheme="orange">Shared</Badge>
-          ) : (
-            <Badge colorScheme="green">Public</Badge>
-          )
-        ) : (
-          <Badge colorScheme="red">Private</Badge>
-        )}
+        {
+          {
+            public: <Badge colorScheme="green">Public</Badge>,
+            private: <Badge colorScheme="red">Private</Badge>,
+            shared: <Badge colorScheme="orange">Shared</Badge>,
+          }[accessControl]
+        }
         {useSTXAddress() === userAddress ? <Badge colorScheme="blue">Yours</Badge> : <></>}
         {/* {isPublic ? <Badge colorScheme="green">Public</Badge> : <Badge colorScheme="red">Private</Badge>} */}
       </HStack>
