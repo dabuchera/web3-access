@@ -11,6 +11,7 @@ import {
   Button,
   Badge,
   useClipboard,
+  useToast,
 } from '@chakra-ui/react'
 import { Type, FileText, Copy, Check, Download } from 'react-feather'
 import { NextPage } from 'next'
@@ -19,22 +20,61 @@ import { useEffect, useState } from 'react'
 import { NextSeo } from 'next-seo'
 import useLoading from '@/hooks/use-loading'
 import { IPrivateFile, IPublicFile } from '@/types/storage'
+import { useAuth } from '@/hooks/use-auth'
 
 const ObjectPage: NextPage = () => {
   const {
     query: { path },
   } = useRouter()
-  const { getFile, getFileMetadata } = useStorage()
+  const { getFile, getFileMetadata, listDataAccessors } = useStorage()
+  const { useSTXAddress } = useAuth()
 
   const [metadata, setMetadata] = useState<IPrivateFile | IPublicFile>()
   const [text, setText] = useState<string>('')
   const { onCopy: onTextCopy, hasCopied: hasCopiedText } = useClipboard(text)
   const { isLoading: isDownloading, startLoading: startDownloadLoading, stopLoading: stopDownloadLoading } = useLoading()
 
+  const toast = useToast()
+
   const handleFileDownload = async () => {
     startDownloadLoading()
     if (metadata) {
-      const data = await getFile(metadata.path, !metadata.isPublic)
+      const dataAccessors = new Array()
+      const userAddress = useSTXAddress()
+      const temp = await listDataAccessors(metadata.url)
+      temp.forEach((element) => {
+        dataAccessors.push(element.value)
+      })
+      // If current User does not have Smart Contract Permission -> Toast
+      // metadata is of type IPublicFile
+      if (metadata.hasOwnProperty('userAddress')) {
+        // @ts-ignore
+        if (
+          !dataAccessors.includes(userAddress) &&
+          //@ts-ignore
+          metadata.userAddress !== userAddress &&
+          metadata.accessControl === 'shared'
+        ) {
+          toast({
+            status: 'error',
+            title: 'Missing Permission',
+            description: 'You do not have the permission to download this file',
+          })
+          stopDownloadLoading()
+          return null
+          //@ts-ignore
+        } else if (metadata.userAddress !== userAddress && metadata.accessControl === 'private') {
+          toast({
+            status: 'error',
+            title: 'Missing Permission',
+            description: 'You do not have the permission to download this file',
+          })
+          stopDownloadLoading()
+          return null
+        }
+      }
+
+      const data = await getFile(metadata.url, metadata.encrypted)
 
       const blob = new Blob([data as ArrayBuffer], {
         type: 'application/octet-stream',
@@ -59,10 +99,9 @@ const ObjectPage: NextPage = () => {
         if (metadata) {
           setMetadata(metadata)
         }
-
         // Whether the correct data is displayed or not is checked in the use-storage.ts
         if (metadata.isString) {
-          const data = await getFile(metadata.url, !metadata.isPublic)
+          const data = await getFile(metadata.url, metadata.encrypted)
           // console.log(data)
           setText(data as string)
         }
@@ -92,7 +131,14 @@ const ObjectPage: NextPage = () => {
             <Heading as="h2" fontSize="2xl">
               {metadata.path}
             </Heading>
-            {metadata.isPublic ? (
+            {
+              {
+                public: <Badge colorScheme="green">Public</Badge>,
+                private: <Badge colorScheme="red">Private</Badge>,
+                shared: <Badge colorScheme="orange">Shared</Badge>,
+              }[metadata.accessControl]
+            }
+            {/* {metadata.isPublic ? (
               metadata.shared ? (
                 <Badge colorScheme="orange">Shared</Badge>
               ) : (
@@ -100,7 +146,7 @@ const ObjectPage: NextPage = () => {
               )
             ) : (
               <Badge colorScheme="red">Private</Badge>
-            )}
+            )} */}
             {metadata.isString ? (
               text ? (
                 <VStack>
@@ -132,3 +178,6 @@ const ObjectPage: NextPage = () => {
 }
 
 export default ObjectPage
+function toast(arg0: { status: string; title: string; description: string }) {
+  throw new Error('Function not implemented.')
+}
