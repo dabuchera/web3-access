@@ -10,37 +10,37 @@ plan:
       transactions:
         - requirement-publish:
             contract-id: SP2PABAF9FTAJYNFZH93XENAJ8FVY99RRM50D2JG9.nft-trait
-            remap-sender: ST2Q25747F18NBRK958J7YX0DJ1MNF4QEVA9WCZCJ
+            remap-sender: STN5A1RKHA2C2WH033G82SR2MSR8BGY3W1XTJ5W5
             remap-principals:
-              SP2PABAF9FTAJYNFZH93XENAJ8FVY99RRM50D2JG9: ST2Q25747F18NBRK958J7YX0DJ1MNF4QEVA9WCZCJ
+              SP2PABAF9FTAJYNFZH93XENAJ8FVY99RRM50D2JG9: STN5A1RKHA2C2WH033G82SR2MSR8BGY3W1XTJ5W5
             cost: 4680
             path: ".cache/requirements/SP2PABAF9FTAJYNFZH93XENAJ8FVY99RRM50D2JG9.nft-trait.clar"
             clarity-version: 1
         - contract-publish:
-            contract-name: accessNFT
-            expected-sender: ST2Q25747F18NBRK958J7YX0DJ1MNF4QEVA9WCZCJ
-            cost: 17296
-            path: contracts/accessNFT.clar
-            anchor-block-only: true
-            clarity-version: 1
-        - contract-publish:
             contract-name: ownershipNFT
-            expected-sender: ST2Q25747F18NBRK958J7YX0DJ1MNF4QEVA9WCZCJ
-            cost: 16028
+            expected-sender: STN5A1RKHA2C2WH033G82SR2MSR8BGY3W1XTJ5W5
+            cost: 742930
             path: contracts/ownershipNFT.clar
             anchor-block-only: true
             clarity-version: 1
         - contract-publish:
-            contract-name: tokenAccess
-            expected-sender: ST2Q25747F18NBRK958J7YX0DJ1MNF4QEVA9WCZCJ
-            cost: 15882
-            path: contracts/tokenAccess.clar
+            contract-name: rolesAccess
+            expected-sender: STN5A1RKHA2C2WH033G82SR2MSR8BGY3W1XTJ5W5
+            cost: 746918
+            path: contracts/rolesAccess.clar
             anchor-block-only: true
             clarity-version: 1
         - contract-publish:
-            contract-name: rolesAccess
-            expected-sender: ST2Q25747F18NBRK958J7YX0DJ1MNF4QEVA9WCZCJ
-            cost: 17270
-            path: contracts/rolesAccess.clar
+            contract-name: accessNFT
+            expected-sender: STN5A1RKHA2C2WH033G82SR2MSR8BGY3W1XTJ5W5
+            cost: 679763
+            path: contracts/accessNFT.clar
+            anchor-block-only: true
+            clarity-version: 1
+        - contract-publish:
+            contract-name: tokenAccess
+            expected-sender: STN5A1RKHA2C2WH033G82SR2MSR8BGY3W1XTJ5W5
+            cost: 727070
+            path: contracts/tokenAccess.clar
             anchor-block-only: true
             clarity-version: 1
