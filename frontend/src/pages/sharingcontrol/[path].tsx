@@ -230,7 +230,7 @@ const ObjectPage: NextPage = () => {
       toast({
         title: 'No entries',
         description: 'There are no entries for this file',
-        status: 'success',
+        status: 'error',
       })
       return null
     }
@@ -413,7 +413,7 @@ const ObjectPage: NextPage = () => {
       toast({
         title: 'No entries',
         description: 'There are no entries for this file',
-        status: 'success',
+        status: 'error',
       })
       return null
     }
