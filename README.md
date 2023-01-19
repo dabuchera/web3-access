@@ -8,13 +8,26 @@ Follow the instructions below to test the prototype.
 
 ## Test the Prototype
 
-We deployed a test intstance of the prototype so you can try it. The smart contracts are deployed on the Stacks testnet ([RolesAccess](https://explorer.stacks.co/txid/0xe44bb9f8a8211b6062be8c992e51dee3ad3a1de4524ff52e4054e8ead471a6a5?chain=testnet), [TokenAccess](https://explorer.stacks.co/txid/0x84e1eecd85f5e6b0c042ccba695fb9ee9ff3d2b3ecae587785b5d4e9c509d7f5?chain=testnet)). The dApp is accessible [here]().
+We deployed a test intstance of the prototype so you can try it. The dApp is accessible [here](https://web3-access.vercel.app/). The smart contracts are deployed on the Stacks testnet ([RolesAccess](https://explorer.stacks.co/txid/0x28817b1e266f43e4d89672a2c77bf5ac08fe6633437a10067524a513d06b99f3?chain=testnet), [TokenAccess](https://explorer.stacks.co/txid/0x84a99f877e91f93b2396078f5f9b3449a1e97e6f0ff89158607aa5d809bb1fee?chain=testnet), [accessNFT](https://explorer.stacks.co/txid/0x413ae57460ebc38b672370163f32039e4ec90c57240356e7054ddabf88d745aa?chain=testnet), [ownershipNFT](https://explorer.stacks.co/txid/0xec1068f538fb3f7be825a07ad40a5ef378c1c962964eafc7691ecf676dab28fe?chain=testnet)).
 
 Follow this tutorial to store and access files:
-1. Install [Hiro Wallet](https://wallet.hiro.so/) for the browser of your choice. Follow the set up process and carefully memorize your Seed and password if you plan to reuse your account at a later stage.
-2. Access the dApp and log in in the top right corner by clicking the "Connect Wallet" button.
-3. ...
 
+### Getting Ready
+
+1. Install [Hiro Wallet](https://wallet.hiro.so/) for the browser of your choice. Follow the set up process and carefully memorize your Seed and password if you plan to reuse your account at a later stage.
+2. Move to the [Testnet faucet](https://explorer.stacks.co/sandbox/faucet?chain=testnet) to receive some free STX so you can pay for transactions. You need to connect your wallet with the account you want to fund.
+3. Access the [dApp](https://web3-access.vercel.app/) and connect in the top right your account with the "Connect Wallet" button.
+
+### Upload a File
+
+
+### Enable Sharing of a File
+
+
+### Role-Based Sharing
+
+
+### Token-Based Sharing
 
 ## Local Development
 
