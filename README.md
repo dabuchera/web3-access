@@ -8,26 +8,89 @@ Follow the instructions below to test the prototype.
 
 ## Test the Prototype
 
-We deployed a test intstance of the prototype so you can try it. The dApp is accessible [here](https://web3-access.vercel.app/). The smart contracts are deployed on the Stacks testnet ([RolesAccess](https://explorer.stacks.co/txid/0x28817b1e266f43e4d89672a2c77bf5ac08fe6633437a10067524a513d06b99f3?chain=testnet), [TokenAccess](https://explorer.stacks.co/txid/0x84a99f877e91f93b2396078f5f9b3449a1e97e6f0ff89158607aa5d809bb1fee?chain=testnet), [accessNFT](https://explorer.stacks.co/txid/0x413ae57460ebc38b672370163f32039e4ec90c57240356e7054ddabf88d745aa?chain=testnet), [ownershipNFT](https://explorer.stacks.co/txid/0xec1068f538fb3f7be825a07ad40a5ef378c1c962964eafc7691ecf676dab28fe?chain=testnet)).
+We deployed a test intstance of the prototype. The dApp is accessible [here](https://web3-access.vercel.app/). The smart contracts are deployed on the Stacks testnet ([RolesAccess](https://explorer.stacks.co/txid/0x28817b1e266f43e4d89672a2c77bf5ac08fe6633437a10067524a513d06b99f3?chain=testnet), [TokenAccess](https://explorer.stacks.co/txid/0x84a99f877e91f93b2396078f5f9b3449a1e97e6f0ff89158607aa5d809bb1fee?chain=testnet), [accessNFT](https://explorer.stacks.co/txid/0x413ae57460ebc38b672370163f32039e4ec90c57240356e7054ddabf88d745aa?chain=testnet), [ownershipNFT](https://explorer.stacks.co/txid/0xec1068f538fb3f7be825a07ad40a5ef378c1c962964eafc7691ecf676dab28fe?chain=testnet)).
 
 Follow this tutorial to store and access files:
 
 ### Getting Ready
 
 1. Install [Hiro Wallet](https://wallet.hiro.so/) for the browser of your choice. Follow the set up process and carefully memorize your Seed and password if you plan to reuse your account at a later stage.
-2. Move to the [Testnet faucet](https://explorer.stacks.co/sandbox/faucet?chain=testnet) to receive some free STX so you can pay for transactions. You need to connect your wallet with the account you want to fund.
-3. Access the [dApp](https://web3-access.vercel.app/) and connect in the top right your account with the "Connect Wallet" button.
+2. Enter the menu (top right) in the Hiro wallet and "Change Network" to "testnet".
+3. Move to the [Testnet faucet](https://explorer.stacks.co/sandbox/faucet?chain=testnet) to receive some free STX so you can pay for transactions. You need to connect your wallet with the account you want to fund.
+4. Access the [dApp](https://web3-access.vercel.app/) and connect in the top right your account with the "Connect Wallet" button.
 
-### Upload a File
+| ![home.png](/readme-img/home.png)|
+|:--:|
+| The landing page to connect the wallet. |
+
+### Upload Data
+
+- To upload a new file or text you can head to the ```/upload``` tab.
+- Public files will not be encrypted.
+- Private files (not public) will be encrypted and can only be accessed with the connected account the file was uploaded with.
+
+| ![upload.png](/readme-img/upload.png) |
+|:--:|
+| Upload page. |
+
+### Enable Sharing of Data
+
+- After the upload a file is visible under the main page.
+- Files can be deleted or shared.
+
+| ![yourfiles11.png](/readme-img/yourfiles11.png) |
+|:--:|
+| The uploaded private file. |
+
+- When shared, the dApp receives permission to share the file.
+- The sharing control button becomes available, where role-based and token-based sharing can be specified. The buttons trigger the access logic in the smart contracts.
+
+| ![yourfiles12.png](/readme-img/yourfiles12.png) |
+|:--:|
+| After enabling sharing, the file is marked as shared. |
 
 
-### Enable Sharing of a File
+| ![yourfiles13.png](/readme-img/yourfiles13.png) |
+|:--:|
+| Shared, public, and private files are marked respectively. |
 
+### Sharing Control
 
-### Role-Based Sharing
+- Role-Based sharing means to share files on an address-basis. Access-rights are non-transferable.
+- The owner account first needs to claim ownership by registering for the ownership role.
+- Then the owner can register accounts to grant access to the file.
 
+- Token-based sharing means to share files on a token basis. The holder of the access token can access the files. This means access-rights are transferable.
+- The owner first claims the ownership NFT.
+- Afterwards, the owner can claim access-NFTs to send to other accounts to grant access.
 
-### Token-Based Sharing
+| ![accesscontrol.png](/readme-img/accesscontrol.png) |
+|:--:|
+| After enabling sharing, the file is marked as shared. |
+
+| ![account1.png](/readme-img/account1.png) |
+|:--:|
+| Account 1 is the owner of the file. It owns the ownership-NFT and two access-NFTs that can be sent to other accounts. |
+
+### Access Data
+
+- If another account connects with the dApp without permssions to access files, it sees them as private in the ```/overview``` tab.
+
+| ![overviewfiles3.png](/readme-img/overviewfiles3.png) |
+|:--:|
+| Account 3 sees the shared files with the dApp also as private. |
+
+- Account 2 received access permission through an accessNFT.
+- The dApp recognizes the connected account holds an accessNFT and grants permission to access the file. It is visible as shared in the ```/overview``` tab.
+- In case Account 2 holds an access role, the dApp notices also this by reading roles from the smart contract.
+
+| ![account2.png](/readme-img/account2.png) |
+|:--:|
+| Account 2 owns one of the access-NFTs. |
+
+| ![overviewfiles2.png](/readme-img/overviewfiles2.png) |
+|:--:|
+| Account 2 can access the shared file in the dApp. |
 
 ## Local Development
 
