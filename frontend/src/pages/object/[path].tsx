@@ -1,18 +1,5 @@
 import { useStorage } from '@/hooks/use-storage'
-import {
-  Box,
-  Heading,
-  Spinner,
-  VStack,
-  Tooltip,
-  Icon,
-  Text,
-  IconButton,
-  Button,
-  Badge,
-  useClipboard,
-  useToast,
-} from '@chakra-ui/react'
+import { Box, Heading, Spinner, VStack, Tooltip, Icon, Text, IconButton, Button, Badge, useClipboard, useToast } from '@chakra-ui/react'
 import { Type, FileText, Copy, Check, Download } from 'react-feather'
 import { NextPage } from 'next'
 import { useRouter } from 'next/router'
@@ -22,15 +9,17 @@ import useLoading from '@/hooks/use-loading'
 import { IPrivateFile, IPublicFile, isPublicFile } from '@/types/storage'
 import { useAuth } from '@/hooks/use-auth'
 
+import * as _ from 'underscore'
+
 const ObjectPage: NextPage = () => {
   const {
     query: { path },
   } = useRouter()
-  const { getFile, getFileMetadata, listDataAccessors } = useStorage()
-  const { useSTXAddress } = useAuth()
+  const { getFile, getFileMetadata, listDataAccessors, listAccessNFT } = useStorage()
+  const { useSTXAddress, getAccessNFTBalance } = useAuth()
 
   const [STXAddress] = useState<string | undefined>(useSTXAddress())
-  const [metadata, setMetadata] = useState<IPrivateFile | IPublicFile>()
+  const [metadata, setMetadata] = useState<IPublicFile | undefined>()
   const [text, setText] = useState<string>('')
   const { onCopy: onTextCopy, hasCopied: hasCopiedText } = useClipboard(text)
   const { isLoading: isDownloading, startLoading: startDownloadLoading, stopLoading: stopDownloadLoading } = useLoading()
@@ -39,39 +28,45 @@ const ObjectPage: NextPage = () => {
 
   const handleFileDownload = async () => {
     startDownloadLoading()
-    if (metadata) {
-      const dataAccessors = new Array()
-      const temp = await listDataAccessors(metadata.url)
-      temp.forEach((element) => {
-        dataAccessors.push(element.value)
-      })
+    if (metadata && STXAddress) {
+      const dataAccessors = await listDataAccessors(metadata.url)
+      const listAccessorsNFT = await listAccessNFT(metadata.url)
+      const accessNFTBalance = await getAccessNFTBalance(STXAddress)
       // If current User does not have Smart Contract Permission -> Toast
       // metadata is of type IPublicFile
-      if (metadata.hasOwnProperty('userAddress')) {
-        // @ts-ignore
-        if (
-          !dataAccessors.includes(STXAddress) &&
-          //@ts-ignore
-          metadata.userAddress !== STXAddress &&
-          metadata.accessControl === 'shared'
-        ) {
-          toast({
-            status: 'error',
-            title: 'Missing Permission',
-            description: 'You do not have the permission to download this file',
-          })
-          stopDownloadLoading()
-          return null
-          //@ts-ignore
-        } else if (metadata.userAddress !== STXAddress && metadata.accessControl === 'private') {
-          toast({
-            status: 'error',
-            title: 'Missing Permission',
-            description: 'You do not have the permission to download this file',
-          })
-          stopDownloadLoading()
-          return null
-        }
+      if (!dataAccessors.includes(STXAddress) && metadata.userAddress !== STXAddress && metadata.accessControl === 'shared') {
+        toast({
+          status: 'error',
+          title: 'Missing Permission',
+          description: 'You do not have the permission to download this file',
+        })
+        stopDownloadLoading()
+        return null
+        //@ts-ignore
+      }
+      if (
+        _.intersection(accessNFTBalance, listAccessorsNFT).length === 0 &&
+        metadata.userAddress !== STXAddress &&
+        metadata.accessControl === 'shared'
+      ) {
+        toast({
+          status: 'error',
+          title: 'Missing Permission',
+          description: 'You do not have the permission to download this file',
+        })
+        stopDownloadLoading()
+        return null
+        //@ts-ignore
+      }
+
+      if (metadata.userAddress !== STXAddress && metadata.accessControl === 'private') {
+        toast({
+          status: 'error',
+          title: 'Missing Permission',
+          description: 'You do not have the permission to download this file',
+        })
+        stopDownloadLoading()
+        return null
       }
 
       const data = await getFile(metadata.url, metadata.encrypted)
@@ -104,7 +99,6 @@ const ObjectPage: NextPage = () => {
         // console.log(isPublicFile(metadata))
         // console.log(STXAddress)
         // console.log(metadata.userAddress)
-
 
         // Whether the correct data is displayed or not is checked in the use-storage.ts
         if (metadata && metadata.isString) {
