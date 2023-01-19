@@ -17,9 +17,11 @@ function MyApp({ Component, pageProps }: AppProps) {
   useEffect(() => {
     if (userSession.isSignInPending()) {
       userSession.handlePendingSignIn().then((userData) => {
+        // userSession.appConfig.appDomain = 'https://web3-access.vercel.app/'
         setUserData(userData)
       })
     } else if (userSession.isUserSignedIn()) {
+      // userSession.appConfig.appDomain = 'https://web3-access.vercel.app/'
       setUserData(userSession.loadUserData())
     }
   }, [userSession, setUserData])

@@ -46,6 +46,9 @@ export const useStorage = () => {
 
   const storage = new Storage({ userSession })
 
+  console.log('userSession')
+  console.log(userSession)
+
   const refreshMetadata = async () => {
     startMetadataRefreshingLoading()
     const userAddress = useSTXAddress()
