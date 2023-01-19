@@ -237,7 +237,7 @@ const ObjectPage: NextPage = () => {
     else {
       toast({
         title: 'Transaction succeeded',
-        description: show,
+        description: show.join('\n'),
         status: 'success',
       })
       return null
@@ -420,7 +420,7 @@ const ObjectPage: NextPage = () => {
     else{
       toast({
         title: 'Transaction succeeded',
-        description: show,
+        description: show.join(' : '),
         status: 'success',
       })
       return null
