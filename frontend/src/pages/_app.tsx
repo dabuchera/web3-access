@@ -17,11 +17,18 @@ function MyApp({ Component, pageProps }: AppProps) {
   useEffect(() => {
     if (userSession.isSignInPending()) {
       userSession.handlePendingSignIn().then((userData) => {
-        // userSession.appConfig.appDomain = 'https://web3-access.vercel.app/'
         setUserData(userData)
       })
     } else if (userSession.isUserSignedIn()) {
-      // userSession.appConfig.appDomain = 'https://web3-access.vercel.app/'
+
+      // const tempUserSession = userSession.store.getSessionData()
+      // tempUserSession.userData?.gaiaHubConfig.address = 
+
+      console.log(userSession.store.getSessionData())
+      // console.log(userSession.store.setSessionData())
+
+
+
       setUserData(userSession.loadUserData())
     }
   }, [userSession, setUserData])
@@ -42,36 +49,30 @@ function MyApp({ Component, pageProps }: AppProps) {
               <Link href="https://docs.stacks.co/docs/gaia/" isExternal color="blue.400">
                 Gaia
               </Link>
-              . Files are private and encrypted by default and can only be decrypted by connecting your wallet. You can also store public files,
-              which will be stored in an unencrypted form.
+              . Files are private and encrypted by default and can only be decrypted by connecting your wallet. You can also store public files, which
+              will be stored in an unencrypted form.
             </Text>
 
             <Text as="h2" fontSize="xl" textAlign="center" mt={4} mb={16}>
-              You can then decide to share your private data, either with a role-based or token-based access mechanism using smart contracts on the {' '}
+              You can then decide to share your private data, either with a role-based or token-based access mechanism using smart contracts on the{' '}
               <Link href="https://www.stacks.co/" isExternal color="blue.400">
                 Stacks Blockchain
               </Link>
-              . The protoype runs on the Stacks testnet. You need to request test-STX from the {' '}
+              . The protoype runs on the Stacks testnet. You need to request test-STX from the{' '}
               <Link href="https://explorer.stacks.co/sandbox/faucet?chain=testnet" isExternal color="blue.400">
                 faucet
-              </Link> to pay for the transaction fees. 
-
+              </Link>{' '}
+              to pay for the transaction fees.
             </Text>
 
             <Text fontSize="xl">
-              Please connect your Stacks {' '}
+              Please connect your Stacks{' '}
               <Link href="https://wallet.hiro.so/" isExternal color="blue.400">
                 wallet
-              </Link> to continue:
+              </Link>{' '}
+              to continue:
             </Text>
-            <Button
-              mt={4}
-              onClick={authenticate}
-              bg="blue.600"
-              color="white"
-              _hover={{ bg: 'blue.500' }}
-              leftIcon={<Icon as={LogIn} />}
-            >
+            <Button mt={4} onClick={authenticate} bg="blue.600" color="white" _hover={{ bg: 'blue.500' }} leftIcon={<Icon as={LogIn} />}>
               Connect Wallet
             </Button>
           </>

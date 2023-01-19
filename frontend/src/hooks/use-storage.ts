@@ -46,9 +46,6 @@ export const useStorage = () => {
 
   const storage = new Storage({ userSession })
 
-  console.log('userSession')
-  console.log(userSession)
-
   const refreshMetadata = async () => {
     startMetadataRefreshingLoading()
     const userAddress = useSTXAddress()
@@ -84,7 +81,7 @@ export const useStorage = () => {
 
       const accessNFTBalance = await getAccessNFTBalance(userAddress)
 
-      console.log('Interscection')
+      console.log('Intersection')
       console.log(accessNFTBalance)
       console.log(_.intersection(accessNFTBalance, [])) //returns [apple, orange]
 
