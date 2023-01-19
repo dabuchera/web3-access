@@ -4,7 +4,7 @@ import type { NextPage } from 'next'
 import { useState } from 'react'
 
 const PlaygroundPage: NextPage = () => {
-  const { saveFile, getFileWithMeta, storage, deleteAllFiles, deletePublicFile } = useStorage()
+  const { saveFile, storage, deleteAllFiles, deletePublicFile } = useStorage()
 
   const [filename, setFilename] = useState<string | null>(null)
 
@@ -20,13 +20,13 @@ const PlaygroundPage: NextPage = () => {
       </Alert>
 
       <Flex experimental_spaceX={4} py={8}>
-        <Button onClick={async () => console.log(await saveFile(`test-encrypted.txt`, 'encrypted text'))}>
+        {/* <Button onClick={async () => console.log(await saveFile(`test-encrypted.txt`, 'encrypted text'))}>
           Save encrypted file
         </Button>
 
         <Button onClick={async () => console.log(await saveFile(`test-decrypted.txt`, 'decrypted text', true))}>
           Save public file
-        </Button>
+        </Button> */}
 
         <Button
           onClick={async () => {
