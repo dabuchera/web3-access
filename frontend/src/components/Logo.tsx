@@ -31,7 +31,7 @@ const Logo = (props: SVGProps<SVGSVGElement>) => (
             <rect height="2" fill="#3b82f6" width="2" x="37" y="14" />
         </g>
         <g>
-            <rect height="6" fill="#3b82f6;" width="2" x="33" y="18" />
+            <rect height="6" fill="#3b82f6" width="2" x="33" y="18" />
         </g>
         <g>
             <rect height="2" fill="#3b82f6" width="2" x="33" y="14" />
@@ -115,10 +115,6 @@ const Logo = (props: SVGProps<SVGSVGElement>) => (
             <polygon points="7,24 5,24 5,56 23,56 23,54 7,54   " fill="#FFFFFF" />
             <polygon points="57,54 41,54 41,56 59,56 59,24 57,24   " fill="#FFFFFF" />
             <path d="M45,26H24.649L19,30.52V50h26V26z M43,48H21V31.48L25.351,28H43V48z" fill="#3b82f6" />
-            <rect height="8" fill="#FFFFFF" width="2" x="35" y="34" />
-            <path d="M29,40h2v2h2v-8h-6v8h2V40z M31,36v2h-2v-2H31z" fill="#FFFFFF" />
-            <rect height="2" fill="#FFFFFF" width="2" x="39" y="37" />
-            <rect height="2" fill="#FFFFFF" width="2" x="23" y="37" />
         </g>
     </g>
   </svg>

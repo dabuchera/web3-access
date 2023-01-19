@@ -225,28 +225,23 @@ const ObjectPage: NextPage = () => {
     if (!url) {
       return null
     }
-    const res = await listDataAccessors(url)
-    if(!res){
-      return null
-    }
-    let show = ''
-    res.forEach((element: { value: string }) => {
-      show += element.value + ', '
-    });
-    if (!show){
+    const show = await listDataAccessors(url)
+    if (show.length === 0){
       toast({
-        title: 'Transaction failed',
-        description: 'No URIs found.',
-        status: 'error',
+        title: 'No entries',
+        description: 'There are no entries for this file',
+        status: 'success',
       })
       return null
     }
-    toast({
-      title: 'Transaction succeeded',
-      description: show,
-      status: 'success',
-    })
-    return null
+    else {
+      toast({
+        title: 'Transaction succeeded',
+        description: show,
+        status: 'success',
+      })
+      return null
+    }
   }
 
   //-------------- TOKEN-BASED SMARTCONTRACT FUNCTIONS --------------
@@ -413,28 +408,23 @@ const ObjectPage: NextPage = () => {
     if (!url) {
       return null
     }
-    const res = await listAccessNFT(url)
-    if(!res){
-      return null
-    }
-    let show = ''
-    res.forEach((element) => {
-      show += element.value + ', '
-    });
-    if (!show){
+    const show = await listAccessNFT(url)
+    if (show.length === 0){
       toast({
-        title: 'Transaction failed',
-        description: 'No URIs found.',
-        status: 'error',
+        title: 'No entries',
+        description: 'There are no entries for this file',
+        status: 'success',
       })
       return null
     }
-    toast({
-      title: 'Transaction succeeded',
-      description: show,
-      status: 'success',
-    })
-    return null
+    else{
+      toast({
+        title: 'Transaction succeeded',
+        description: show,
+        status: 'success',
+      })
+      return null
+    }
   }
 
   // (get-access-nft-owner (uri uint))
