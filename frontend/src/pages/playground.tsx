@@ -58,7 +58,7 @@ const PlaygroundPage: NextPage = () => {
         </Button>
       </Flex>
 
-      <form
+      {/* <form
         onSubmit={async (e) => {
           e.preventDefault()
           console.log(await getFileWithMeta(filename as string))
@@ -68,7 +68,7 @@ const PlaygroundPage: NextPage = () => {
           <Input name="filename" required onChange={(e) => setFilename(e.target.value as string)} />{' '}
           <Button type="submit">Get File</Button>
         </Flex>
-      </form>
+      </form> */}
     </Box>
   )
 }

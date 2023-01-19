@@ -25,11 +25,13 @@ import {
 } from '@stacks/transactions'
 import { contractOwnerAddress, appDetails } from '@/lib/constants'
 
+import * as _ from 'underscore'
+
 const PRIVATE_METADATA_FILE_PATH = '.private/metadata.json'
 const PUBLIC_METADATA_FILE_PATH = 'https://api.jsonbin.io/v3/b/639af46101a72b59f231285b?meta=false'
 
 export const useStorage = () => {
-  const { userSession, useSTXAddress } = useAuth()
+  const { userSession, useSTXAddress, getBalance, getAccessNFTBalance } = useAuth()
   const [metadata, setMetadata] = useState<PrivateMetadataFile | undefined>()
   const [publicMetadata, setPublicMetadata] = useState<PublicMetadataFile | undefined>()
 
@@ -72,28 +74,41 @@ export const useStorage = () => {
       setMetadata(resMetadata)
 
       // Overview File
-      const resOverview: PublicMetadataFile = await getOverviewFile()
-      // if (resOverview) {
-      //   console.log('resOverview Lenght: ' + Object.keys(resOverview.files).length)
-      // }
+      const resOverview = await getOverviewFile()
+      if (!resOverview || !userAddress) {
+        return undefined
+      }
+
+      const accessNFTBalance = await getAccessNFTBalance(userAddress)
+
+      console.log('Interscection')
+      console.log(accessNFTBalance)
+      console.log(_.intersection(accessNFTBalance, [])) //returns [apple, orange]
+
       console.log('resOverview Lenght: ' + Object.keys(resOverview.files).length)
-      console.log(resOverview.files)
+      console.log(resOverview)
 
       // Change AccessControl according to Smart Contract Informations
       for (const key in resOverview.files) {
         if (Object.prototype.hasOwnProperty.call(resOverview.files, key)) {
           const element = resOverview.files[key]
-          if (element.accessControl === 'shared') {
-            const dataAccessors = new Array()
-            const temp = await listDataAccessors(element.url)
-            temp.forEach((element) => {
-              dataAccessors.push(element.value)
-            })
+          if (element && element.accessControl === 'shared') {
+            const dataAccessors = await listDataAccessors(element.url)
+            const listAccessorsNFT = await listAccessNFT(element.url)
             // If current User does not have Smart Contract Permission -> accessControl = "private"
             if (!dataAccessors.includes(userAddress) && element.userAddress !== userAddress) {
               element.accessControl = 'private'
             }
-            console.log(element.path + ' ' + dataAccessors)
+            if (_.intersection(accessNFTBalance, listAccessorsNFT).length === 0 && element.userAddress !== userAddress) {
+              element.accessControl = 'private'
+            }
+            console.log(element.path)
+            console.log(dataAccessors)
+            console.log('listAccessorsNFT')
+            console.log(listAccessorsNFT)
+            console.log('accessNFTBalance')
+            console.log(accessNFTBalance)
+            
           }
         }
       }
@@ -195,14 +210,14 @@ export const useStorage = () => {
     return url
   }
 
-  const getFileWithMeta = async (filename: string) => {
-    const fileMeta = await getFileMetadata(filename)
-    const res = await storage.getFile(filename, {
-      decrypt: !fileMeta.isPublic,
-    })
+  // const getFileWithMeta = async (filename: string) => {
+  //   const fileMeta = await getFileMetadata(filename)
+  //   const res = await storage.getFile(filename, {
+  //     decrypt: !fileMeta.isPublic,
+  //   })
 
-    return { meta: fileMeta, data: res }
-  }
+  //   return { meta: fileMeta, data: res }
+  // }
 
   // Get File which belongs to logged in user
   const getFile = async (url: string, doDecrypt: boolean = true) => {
@@ -210,6 +225,11 @@ export const useStorage = () => {
     // Check if File belongs to logged in user
     const userAddress = useSTXAddress()
     const resOverview = await getOverviewFile()
+
+    if (!resOverview) {
+      console.log('Cannot get File')
+      return null
+    }
 
     console.log('url: ' + url)
     const dataAccessors = await listDataAccessors(url)
@@ -226,7 +246,7 @@ export const useStorage = () => {
     // console.log(doDecrypt)
 
     //*********************** File belongs to logged in user ***********************//
-    if (userAddress === resOverview.files[filename].userAddress) {
+    if (userAddress === resOverview.files[filename]?.userAddress) {
       console.log('File belongs to logged in user')
       const res = await storage.getFile(filename, {
         decrypt: doDecrypt,
@@ -239,7 +259,7 @@ export const useStorage = () => {
         if (res.includes('cipherText')) {
           return await storage
             .getFile(filename, {
-              decrypt: '4e185081062dd819e0f251864817957704f17bb07baef49fa447bbbeb8b143e5',
+              decrypt: process.env.DAPP_PRIVATE_KEY,
             })
             .then((res) => {
               if (!res) return null
@@ -255,12 +275,6 @@ export const useStorage = () => {
     else {
       console.log('File DOES NOT belongs to logged in user')
       try {
-        const dataAccessors = new Array()
-        const temp = await listDataAccessors(url)
-        temp.forEach((element) => {
-          dataAccessors.push(element.value)
-        })
-        console.log(dataAccessors)
         return await fetch(url).then((response) => {
           const contentType = response.headers.get('content-type')
           console.log('contentType: ' + contentType)
@@ -355,7 +369,7 @@ export const useStorage = () => {
     }
   }
 
-  const getOverviewFile = async () => {
+  const getOverviewFile = async (): Promise<PublicMetadataFile | undefined> => {
     // console.log('getOverviewFile')
     try {
       return await fetch(PUBLIC_METADATA_FILE_PATH)
@@ -367,7 +381,7 @@ export const useStorage = () => {
           // }
           return userSession
             .decryptContent(JSON.stringify(data), {
-              privateKey: '4e185081062dd819e0f251864817957704f17bb07baef49fa447bbbeb8b143e5',
+              privateKey: process.env.DAPP_PRIVATE_KEY,
             })
             .then((res) => {
               if (!res) return null
@@ -381,40 +395,38 @@ export const useStorage = () => {
     }
   }
 
-  const getFileMetadata = async (path: string) => {
+  const getFileMetadata = async (path: string): Promise<IPublicFile | undefined> => {
     // console.log('getFileMetadata')
     const userAddress = useSTXAddress()
-    const metadata = await getMetadataFile()
+    // const metadata = await getMetadataFile()
     const publicMetadata = await getOverviewFile()
-    // Change AccessControl according to Smart Contract Informations
-    for (const key in publicMetadata.files) {
-      if (Object.prototype.hasOwnProperty.call(publicMetadata.files, key)) {
-        const element = publicMetadata.files[key]
-        if (element.accessControl === 'shared') {
-          const dataAccessors = new Array()
-          const temp = await listDataAccessors(element.url)
-          temp.forEach((element) => {
-            dataAccessors.push(element.value)
-          })
-          // If current User does not have Smart Contract Permission -> accessControl = "private"
-          if (!dataAccessors.includes(userAddress) && element.userAddress !== userAddress) {
-            element.accessControl = 'private'
+    if (!publicMetadata || !userAddress) {
+      return undefined
+    } else {
+      // Change AccessControl according to Smart Contract Informations
+      for (const key in publicMetadata.files) {
+        if (Object.prototype.hasOwnProperty.call(publicMetadata.files, key)) {
+          const element = publicMetadata.files[key]
+          if (element && element.accessControl === 'shared') {
+            const dataAccessors = await listDataAccessors(element.url)
+            // If current User does not have Smart Contract Permission -> accessControl = "private"
+            if (!dataAccessors.includes(userAddress) && element.userAddress !== userAddress) {
+              element.accessControl = 'private'
+            }
+            // console.log(dataAccessors.includes(userAddress))
           }
-          // console.log(dataAccessors.includes(userAddress))
         }
       }
-    }
-    if (!metadata) {
-      return null
-    }
-    // File of Logged In User
-    else if (metadata.files[path]) {
-      return metadata.files[path]
-    }
-    // File of NOT Logged In User
-    else {
+      // File of NOT Logged In User
       return publicMetadata.files[path]
     }
+    // if (!metadata) {
+    //   return null
+    // }
+    // // File of Logged In User
+    // else if (metadata.files[path]) {
+    //   return metadata.files[path]
+    // }
   }
 
   const saveMetadataFile = async (metadata: any) => {
@@ -430,7 +442,7 @@ export const useStorage = () => {
     // console.log('saveOverviewFile')
     // console.log(JSON.stringify(metadata))
     const encrypted = await userSession.encryptContent(JSON.stringify(metadata), {
-      privateKey: '4e185081062dd819e0f251864817957704f17bb07baef49fa447bbbeb8b143e5',
+      privateKey: process.env.DAPP_PRIVATE_KEY,
     })
 
     // console.log('encrypted')
@@ -462,6 +474,11 @@ export const useStorage = () => {
     const existingMetadata = await getMetadataFile()
     const existingOverviewMetadata = await getOverviewFile()
 
+    if (!existingOverviewMetadata || !existingMetadata) {
+      console.log('Cannot delete File')
+      return null
+    }
+
     // Private Metadata
     const newMetadata: PrivateMetadataFile = {
       ...existingMetadata,
@@ -490,6 +507,11 @@ export const useStorage = () => {
   const toggleshareFile = async (path: string) => {
     const existingMetadata = await getMetadataFile()
     const existingOverviewMetadata = await getOverviewFile()
+
+    if (!existingOverviewMetadata || !existingMetadata) {
+      console.log('Cannot toggle share File')
+      return null
+    }
 
     const file = existingMetadata.files[path]
     // console.log(file)
@@ -530,7 +552,7 @@ export const useStorage = () => {
       }
 
       const encryptedData = await userSession.encryptContent(input, {
-        privateKey: '4e185081062dd819e0f251864817957704f17bb07baef49fa447bbbeb8b143e5',
+        privateKey: process.env.DAPP_PRIVATE_KEY,
       })
 
       // await saveFile(path, encryptedData, true, true, file.dataType)
@@ -600,11 +622,12 @@ export const useStorage = () => {
   }
 
   // Contract Stuff
-  const listDataAccessors = async (url: string) => {
-    let returnArr: returnObject[] = []
+  const listDataAccessors = async (url: string): Promise<string[]> => {
+    let tempArr: returnObject[] = []
     const address = useSTXAddress()
     if (!address) {
-      return returnArr
+      let ret: string[] = []
+      return ret
     }
     const temp = await callReadOnlyFunction({
       contractAddress: contractOwnerAddress,
@@ -615,16 +638,20 @@ export const useStorage = () => {
       network,
     })
     if (temp) {
-      returnArr = cvToValue(temp)
+      tempArr = cvToValue(temp)
     }
+    const returnArr = tempArr.map((item) => {
+      return item.value
+    })
     return returnArr
   }
 
-  const listAccessNFT = async (url: string) => {
-    let returnArr: returnObject[] = []
+  const listAccessNFT = async (url: string): Promise<string[]> => {
+    let tempArr: returnObject[] = []
     const address = useSTXAddress()
     if (!address) {
-      return returnArr
+      let ret: string[] = []
+      return ret
     }
     const temp = await callReadOnlyFunction({
       contractAddress: contractOwnerAddress,
@@ -635,8 +662,13 @@ export const useStorage = () => {
       network,
     })
     if (temp) {
-      returnArr = cvToValue(temp)
+      tempArr = cvToValue(temp)
     }
+    console.log(tempArr)
+    const returnArr = tempArr.map((item) => {
+      return item.value
+    })
+    console.log(returnArr)
     return returnArr
   }
 
@@ -676,7 +708,7 @@ export const useStorage = () => {
     getFile,
     getOverviewFile,
     // getEncryptedFile,
-    getFileWithMeta,
+    // getFileWithMeta,
     getMetadataFile,
     getFileMetadata,
     saveMetadataFile,

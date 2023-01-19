@@ -38,7 +38,7 @@ const OverviewFiles = () => {
       {isMetadataRefreshing ? (
         <Spinner />
       ) : (
-        <Grid templateColumns="repeat(auto-fit, minmax(500px, 1fr))" gap={6} w="100%">
+        <Grid templateColumns="repeat(auto-fit, minmax(400px, 1fr))" gap={6} w="100%">
           {publicMetadata && Object.keys(publicMetadata.files).length > 0 ? (
             Object.keys(publicMetadata.files).map((path) => {
               const { accessControl, encrypted, isString, lastModified, url, userAddress }: IPublicFile = publicMetadata

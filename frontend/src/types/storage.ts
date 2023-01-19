@@ -1,4 +1,4 @@
-export type AccessControl = "public" | "private" | "shared"
+export type AccessControl = 'public' | 'private' | 'shared'
 
 export type PrivateMetadataFile = {
   files: IPrivateFile[]
@@ -14,7 +14,11 @@ export type IPrivateFile = {
 }
 
 export type PublicMetadataFile = {
-  files: IPublicFile[]
+  files: GroupIPublicFile
+}
+
+type GroupIPublicFile = {
+  [key:string]: IPublicFile | undefined;
 }
 
 export type IPublicFile = {
@@ -30,4 +34,8 @@ export type IPublicFile = {
 export type returnObject = {
   type: string
   value: string
+}
+
+export function isPublicFile(object: IPrivateFile | IPublicFile): object is IPublicFile {
+  return !(object as IPublicFile).userAddress !== undefined
 }

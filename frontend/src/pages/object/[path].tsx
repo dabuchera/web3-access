@@ -19,7 +19,7 @@ import { useRouter } from 'next/router'
 import { useEffect, useState } from 'react'
 import { NextSeo } from 'next-seo'
 import useLoading from '@/hooks/use-loading'
-import { IPrivateFile, IPublicFile } from '@/types/storage'
+import { IPrivateFile, IPublicFile, isPublicFile } from '@/types/storage'
 import { useAuth } from '@/hooks/use-auth'
 
 const ObjectPage: NextPage = () => {
@@ -29,6 +29,7 @@ const ObjectPage: NextPage = () => {
   const { getFile, getFileMetadata, listDataAccessors } = useStorage()
   const { useSTXAddress } = useAuth()
 
+  const [STXAddress] = useState<string | undefined>(useSTXAddress())
   const [metadata, setMetadata] = useState<IPrivateFile | IPublicFile>()
   const [text, setText] = useState<string>('')
   const { onCopy: onTextCopy, hasCopied: hasCopiedText } = useClipboard(text)
@@ -40,7 +41,6 @@ const ObjectPage: NextPage = () => {
     startDownloadLoading()
     if (metadata) {
       const dataAccessors = new Array()
-      const userAddress = useSTXAddress()
       const temp = await listDataAccessors(metadata.url)
       temp.forEach((element) => {
         dataAccessors.push(element.value)
@@ -50,9 +50,9 @@ const ObjectPage: NextPage = () => {
       if (metadata.hasOwnProperty('userAddress')) {
         // @ts-ignore
         if (
-          !dataAccessors.includes(userAddress) &&
+          !dataAccessors.includes(STXAddress) &&
           //@ts-ignore
-          metadata.userAddress !== userAddress &&
+          metadata.userAddress !== STXAddress &&
           metadata.accessControl === 'shared'
         ) {
           toast({
@@ -63,7 +63,7 @@ const ObjectPage: NextPage = () => {
           stopDownloadLoading()
           return null
           //@ts-ignore
-        } else if (metadata.userAddress !== userAddress && metadata.accessControl === 'private') {
+        } else if (metadata.userAddress !== STXAddress && metadata.accessControl === 'private') {
           toast({
             status: 'error',
             title: 'Missing Permission',
@@ -99,8 +99,15 @@ const ObjectPage: NextPage = () => {
         if (metadata) {
           setMetadata(metadata)
         }
+
+        // isPublicFile(metadata) && STXAddress === metadata.userAddress
+        // console.log(isPublicFile(metadata))
+        // console.log(STXAddress)
+        // console.log(metadata.userAddress)
+
+
         // Whether the correct data is displayed or not is checked in the use-storage.ts
-        if (metadata.isString) {
+        if (metadata && metadata.isString) {
           const data = await getFile(metadata.url, metadata.encrypted)
           // console.log(data)
           setText(data as string)
@@ -138,15 +145,12 @@ const ObjectPage: NextPage = () => {
                 shared: <Badge colorScheme="orange">Shared</Badge>,
               }[metadata.accessControl]
             }
-            {/* {metadata.isPublic ? (
-              metadata.shared ? (
-                <Badge colorScheme="orange">Shared</Badge>
-              ) : (
-                <Badge colorScheme="green">Public</Badge>
-              )
+            {useSTXAddress()}
+            {isPublicFile(metadata) && STXAddress === metadata.userAddress ? (
+              <Badge colorScheme="blue">Yours</Badge>
             ) : (
-              <Badge colorScheme="red">Private</Badge>
-            )} */}
+              <Badge colorScheme="orange">Not Yours</Badge>
+            )}
             {metadata.isString ? (
               text ? (
                 <VStack>

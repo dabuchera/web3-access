@@ -3,6 +3,7 @@ import { useAtom } from 'jotai'
 import { useAtomValue } from 'jotai/utils'
 import { appDetails } from '@/lib/constants'
 import { userDataAtom, userSessionAtom } from '@/store/auth'
+import { getRPCClient } from 'common/utils'
 
 export const useAuth = () => {
   const userSession = useAtomValue(userSessionAtom)
@@ -41,5 +42,67 @@ export const useAuth = () => {
     return userData?.profile?.stxAddress?.testnet as string
   }
 
-  return { userSession, userData, setUserData, authenticate, logout, useSTXAddress, resolveSTXAddress }
+  const getBalance = async (address: string) => {
+    const client = getRPCClient()
+    const url = `${client.url}/extended/v1/address/${address}/balances`
+
+    // console.log(url)
+    const response = await fetch(url, { credentials: 'omit' })
+    const data = await response.json()
+
+    console.log(data)
+    // const contractAddress = process.env.REACT_APP_CONTRACT_ADDRESS
+
+    // // console.log(contractAddress)
+    // const dasBalance = data.fungible_tokens[`${contractAddress}.das-token::das-token`]
+
+    // return {
+    //   stx: Number(data.stx.balance / microstacksPerSTX),
+    //   das: dasBalance ? Number(dasBalance.balance) : 0,
+    //   // stx: Number(data.stx.balance) - Number(data.stx.locked),
+    //   // das: Number(dasBalance) ? dasBalance.balance : 0,
+    // }
+  }
+
+  const getAccessNFTBalance = async (address: string) => {
+    const client = getRPCClient()
+    const url = `${client.url}/extended/v1/tokens/nft/holdings?principal=${address}&asset_identifiers=ST2Q25747F18NBRK958J7YX0DJ1MNF4QEVA9WCZCJ.accessNFT::accessNFT`
+
+    // console.log(url)
+    const response = await fetch(url, { credentials: 'omit' })
+    const data = await response.json()
+
+    console.log(data)
+
+    const returnArr: string[] = []
+    
+    data.results.forEach((element: { value: { repr: string } }) => {
+      returnArr.push(element.value.repr.replace("u",""))
+    });
+
+    return returnArr
+    // const contractAddress = process.env.REACT_APP_CONTRACT_ADDRESS
+
+    // // console.log(contractAddress)
+    // const dasBalance = data.fungible_tokens[`${contractAddress}.das-token::das-token`]
+
+    // return {
+    //   stx: Number(data.stx.balance / microstacksPerSTX),
+    //   das: dasBalance ? Number(dasBalance.balance) : 0,
+    //   // stx: Number(data.stx.balance) - Number(data.stx.locked),
+    //   // das: Number(dasBalance) ? dasBalance.balance : 0,
+    // }
+  }
+
+  return {
+    userSession,
+    userData,
+    setUserData,
+    authenticate,
+    logout,
+    useSTXAddress,
+    resolveSTXAddress,
+    getBalance,
+    getAccessNFTBalance,
+  }
 }
