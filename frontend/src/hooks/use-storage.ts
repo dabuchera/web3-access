@@ -1,13 +1,6 @@
 import { useAuth } from './use-auth'
 import { Storage } from '@stacks/storage'
-import {
-  AccessControl,
-  IPrivateFile,
-  IPublicFile,
-  PrivateMetadataFile,
-  PublicMetadataFile,
-  returnObject,
-} from '@/types/storage'
+import { AccessControl, IPrivateFile, IPublicFile, PrivateMetadataFile, PublicMetadataFile, returnObject } from '@/types/storage'
 import { useState } from 'react'
 import useLoading from './use-loading'
 import { useToast } from '@chakra-ui/react'
@@ -37,11 +30,7 @@ export const useStorage = () => {
 
   const network = new StacksTestnet()
 
-  const {
-    isLoading: isMetadataRefreshing,
-    startLoading: startMetadataRefreshingLoading,
-    stopLoading: stopMetadataRefreshingLoading,
-  } = useLoading()
+  const { isLoading: isMetadataRefreshing, startLoading: startMetadataRefreshingLoading, stopLoading: stopMetadataRefreshingLoading } = useLoading()
   const toast = useToast()
 
   const storage = new Storage({ userSession })
@@ -81,9 +70,9 @@ export const useStorage = () => {
 
       const accessNFTBalance = await getAccessNFTBalance(userAddress)
 
-      console.log('Interscection')
-      console.log(accessNFTBalance)
-      console.log(_.intersection(accessNFTBalance, [])) //returns [apple, orange]
+      // console.log('Intersection')
+      // console.log(accessNFTBalance)
+      // console.log(_.intersection(accessNFTBalance, [])) //returns [apple, orange]
 
       console.log('resOverview Lenght: ' + Object.keys(resOverview.files).length)
       console.log(resOverview)
@@ -108,7 +97,6 @@ export const useStorage = () => {
             console.log(listAccessorsNFT)
             console.log('accessNFTBalance')
             console.log(accessNFTBalance)
-            
           }
         }
       }
@@ -664,11 +652,11 @@ export const useStorage = () => {
     if (temp) {
       tempArr = cvToValue(temp)
     }
-    console.log(tempArr)
+    // console.log(tempArr)
     const returnArr = tempArr.map((item) => {
       return item.value
     })
-    console.log(returnArr)
+    // console.log(returnArr)
     return returnArr
   }
 

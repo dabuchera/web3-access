@@ -66,16 +66,13 @@ export const useAuth = () => {
 
   const getAccessNFTBalance = async (address: string) => {
     const client = getRPCClient()
-    const url = `${client.url}/extended/v1/tokens/nft/holdings?principal=${address}&asset_identifiers=ST2Q25747F18NBRK958J7YX0DJ1MNF4QEVA9WCZCJ.accessNFT::accessNFT`
+    const url = `${client.url}/extended/v1/tokens/nft/holdings?principal=${address}&asset_identifiers=STN5A1RKHA2C2WH033G82SR2MSR8BGY3W1XTJ5W5.accessNFT::accessNFT`
 
     // console.log(url)
     const response = await fetch(url, { credentials: 'omit' })
     const data = await response.json()
 
-    console.log(data)
-
     const returnArr: string[] = []
-    
     data.results.forEach((element: { value: { repr: string } }) => {
       returnArr.push(element.value.repr.replace("u",""))
     });
