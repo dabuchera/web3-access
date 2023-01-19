@@ -48,6 +48,9 @@ const Upload = () => {
   useEffect(() => {
     const fetchOverviewFile = async () => {
       const file = await getOverviewFile()
+      if(!file){
+        return null
+      }
       let tempArr = new Array()
       for (const key in file.files) {
         tempArr.push(key)
