@@ -17,7 +17,7 @@ Follow this tutorial to store and access files:
 1. Install [Hiro Wallet](https://wallet.hiro.so/) for the browser of your choice. Follow the set up process and carefully memorize your Seed and password if you plan to reuse your account at a later stage.
 2. Enter the menu (top right) in the Hiro wallet and "Change Network" to "testnet".
 3. Move to the [Testnet faucet](https://explorer.stacks.co/sandbox/faucet?chain=testnet) to receive some free STX so you can pay for transactions. You need to connect your wallet with the account you want to fund.
-4. Access the [dApp](https://web3-access.vercel.app/) and connect in the top right your account with the "Connect Wallet" button.
+4. Access the [dApp](https://web3-access.vercel.app/) and connect your account with the "Connect Wallet" button.
 
 | ![home.png](/readme-img/home.png)|
 |:--:|
@@ -35,15 +35,15 @@ Follow this tutorial to store and access files:
 
 ### Enable Sharing of Data
 
-- After the upload a file is visible under the main page.
+- After the upload the file is visible under the main page.
 - Files can be deleted or shared.
 
 | ![yourfiles11.png](/readme-img/yourfiles11.png) |
 |:--:|
 | The uploaded private file. |
 
-- When shared, the dApp receives permission to share the file.
-- The sharing control button becomes available, where role-based and token-based sharing can be specified. The buttons trigger the access logic in the smart contracts.
+- When clicking "Allow Sharing", the dApp receives permission to share the data.
+- The sharing control button becomes available, where role-based and token-based sharing can be specified.
 
 | ![yourfiles12.png](/readme-img/yourfiles12.png) |
 |:--:|
@@ -56,13 +56,14 @@ Follow this tutorial to store and access files:
 
 ### Sharing Control
 
+- The buttons trigger the access logic in the respective smart contracts. The smart contracts are deployed on the Stacks testnet ([RolesAccess](https://explorer.stacks.co/txid/0x28817b1e266f43e4d89672a2c77bf5ac08fe6633437a10067524a513d06b99f3?chain=testnet), [TokenAccess](https://explorer.stacks.co/txid/0x84a99f877e91f93b2396078f5f9b3449a1e97e6f0ff89158607aa5d809bb1fee?chain=testnet)).
 - Role-Based sharing means to share files on an address-basis. Access-rights are non-transferable.
 - The owner account first needs to claim ownership by registering for the ownership role.
-- Then the owner can register accounts to grant access to the file.
+- Then the owner can register other accounts to grant them access to the data.
 
-- Token-based sharing means to share files on a token basis. The holder of the access token can access the files. This means access-rights are transferable.
-- The owner first claims the ownership NFT.
-- Afterwards, the owner can claim access-NFTs to send to other accounts to grant access.
+- Token-based sharing means to share files on a token basis. Every holder of an access-NFT can access the data. This means access-rights are transferable.
+- The owner first claims the ownership-NFT.
+- Afterwards, the owner holding the ownership-NFT can claim access-NFTs to send to other accounts to grant access.
 
 | ![accesscontrol.png](/readme-img/accesscontrol.png) |
 |:--:|
@@ -74,15 +75,15 @@ Follow this tutorial to store and access files:
 
 ### Access Data
 
-- If another account connects with the dApp without permssions to access files, it sees them as private in the ```/overview``` tab.
+- If another account connects with the dApp without permssions to access files, it sees them as private in the ```/overview``` tab (even if they were shared with the dApp or other accounts).
 
 | ![overviewfiles3.png](/readme-img/overviewfiles3.png) |
 |:--:|
 | Account 3 sees the shared files with the dApp also as private. |
 
 - Account 2 received access permission through an accessNFT.
-- The dApp recognizes the connected account holds an accessNFT and grants permission to access the file. It is visible as shared in the ```/overview``` tab.
-- In case Account 2 holds an access role, the dApp notices also this by reading roles from the smart contract.
+- The dApp recognizes the connected account holds an accessNFT and grants permission to access the data. It is also visible as shared in the ```/overview``` tab.
+- In case Account 2 holds an access role, the dApp notices this in the same way as it notices wether it holds an access-NFT by reading the states of access roles from the smart contract.
 
 | ![account2.png](/readme-img/account2.png) |
 |:--:|
