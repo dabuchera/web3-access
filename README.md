@@ -6,6 +6,8 @@ The prototype demonstrates how to use role-based and token-based smart contract 
 
 Follow the instructions below to test the prototype.
 
+**Important**: Please be patient. It takes time until transactions are confirmed and changes to the access logic are reflected in the prototype. You can always check the state of the transaction in the Stacks Explorer, e.g. for the [RolesAccess](https://explorer.stacks.co/txid/0x28817b1e266f43e4d89672a2c77bf5ac08fe6633437a10067524a513d06b99f3?chain=testnet) or [TokenAccess](https://explorer.stacks.co/txid/0x84a99f877e91f93b2396078f5f9b3449a1e97e6f0ff89158607aa5d809bb1fee?chain=testnet) contract.
+
 ## Test the Prototype
 
 We deployed a test intstance of the prototype. The dApp is accessible [here](https://web3-access.vercel.app/). The smart contracts are deployed on the Stacks testnet ([RolesAccess](https://explorer.stacks.co/txid/0x28817b1e266f43e4d89672a2c77bf5ac08fe6633437a10067524a513d06b99f3?chain=testnet), [TokenAccess](https://explorer.stacks.co/txid/0x84a99f877e91f93b2396078f5f9b3449a1e97e6f0ff89158607aa5d809bb1fee?chain=testnet), [accessNFT](https://explorer.stacks.co/txid/0x413ae57460ebc38b672370163f32039e4ec90c57240356e7054ddabf88d745aa?chain=testnet), [ownershipNFT](https://explorer.stacks.co/txid/0xec1068f538fb3f7be825a07ad40a5ef378c1c962964eafc7691ecf676dab28fe?chain=testnet)).
@@ -56,18 +58,25 @@ Follow this tutorial to store and access files:
 
 ### Sharing Control
 
-- The buttons trigger the access logic in the respective smart contracts. The smart contracts are deployed on the Stacks testnet ([RolesAccess](https://explorer.stacks.co/txid/0x28817b1e266f43e4d89672a2c77bf5ac08fe6633437a10067524a513d06b99f3?chain=testnet), [TokenAccess](https://explorer.stacks.co/txid/0x84a99f877e91f93b2396078f5f9b3449a1e97e6f0ff89158607aa5d809bb1fee?chain=testnet)).
-- Role-Based sharing means to share files on an address-basis. Access-rights are non-transferable.
+The buttons trigger the access logic in the respective smart contracts. The smart contracts are deployed on the Stacks testnet ([RolesAccess](https://explorer.stacks.co/txid/0x28817b1e266f43e4d89672a2c77bf5ac08fe6633437a10067524a513d06b99f3?chain=testnet), [TokenAccess](https://explorer.stacks.co/txid/0x84a99f877e91f93b2396078f5f9b3449a1e97e6f0ff89158607aa5d809bb1fee?chain=testnet)).
+
+#### Role-Based Sharing
+- Role-Based sharing means to share files on an address-basis. **Access-rights are non-transferable**.
 - The owner account first needs to claim ownership by registering for the ownership role.
 - Then the owner can register other accounts to grant them access to the data.
 
-- Token-based sharing means to share files on a token basis. Every holder of an access-NFT can access the data. This means access-rights are transferable.
+| ![accesscontrol1.png](/readme-img/accesscontrol1.png) |
+|:--:|
+| The sharing control page of the file: Role-Based access control. |
+
+#### Token-Based Sharing
+- Token-based sharing means to share files on a token basis. Every holder of an access-NFT can access the data. **This means access-rights are transferable**.
 - The owner first claims the ownership-NFT.
 - Afterwards, the owner holding the ownership-NFT can claim access-NFTs to send to other accounts to grant access.
 
-| ![accesscontrol.png](/readme-img/accesscontrol.png) |
+| ![accesscontrol2.png](/readme-img/accesscontrol2.png) |
 |:--:|
-| After enabling sharing, the file is marked as shared. |
+| The sharing control page of the file: Token-Based access control. |
 
 | ![account1.png](/readme-img/account1.png) |
 |:--:|
@@ -95,13 +104,26 @@ Follow this tutorial to store and access files:
 
 ## Local Development
 
-### Deploy Contracts
-
 We use [Stacks](https://www.stacks.co/) for this protoype with smart contracts written in [Clarity](https://book.clarity-lang.org/).
 
-To run and test the smart contracts locally, you can deploy them to a local network.
+To run and test the smart contracts locally, you can deploy them to a local network with Clarinet.
 
 - Install [Clarinet](https://github.com/hirosystems/clarinet).
+
+### Test Contracts with Unit Tests
+
+The unit tests for the smart contracts are located in the ```/contracts/tests``` folder. They can be executed as follows:
+
+```sh
+## Move into /contracts folder
+$ cd contracts
+
+## Execute the unit tests in a local network
+$ clarinet test
+```
+
+### Test Contracts with Front-End
+
 - Install and run [Docker](https://www.docker.com/).
 - Spwan a local Devnet and deploy the contracts:
 
@@ -113,10 +135,7 @@ $ cd contracts
 $ clarinet integrate
 ```
 
-### Start Frontend
-
-The frontend was built using [React](https://reactjs.org/) and [Chakra](https://chakra-ui.com/).
-
+Next, start the front-end. The frontend was built using [React](https://reactjs.org/) and [Chakra](https://chakra-ui.com/).
 
 ```sh
 ## Move into /frontend folder
@@ -131,9 +150,7 @@ $ npm run dev
 
 Access the frontend on the indicated localhost, most likely http://localhost:3000.
 
-### Connect Wallet
-
-You need a blockchain wallet to interact with the dApp and the smart contracts. The most popular choice for Stacks is for now the [Hiro Wallet](https://wallet.hiro.so/).
+Finally, connect a wallet to interact with the deployed contracts on Devnet. For that you need a blockchain wallet to interact with the dApp and the smart contracts. The most popular choice for Stacks is for now the [Hiro Wallet](https://wallet.hiro.so/).
 
 - Install Hiro for the browser of your choice.
 - Set up a wallet with one of the default addresses listed in the [Devnet.toml](/contracts/settings/Devnet.toml) file (so you have a funded address to play with).

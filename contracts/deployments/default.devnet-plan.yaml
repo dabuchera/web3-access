@@ -17,13 +17,6 @@ plan:
             path: ".cache/requirements/SP2PABAF9FTAJYNFZH93XENAJ8FVY99RRM50D2JG9.nft-trait.clar"
             clarity-version: 1
         - contract-publish:
-            contract-name: rolesAccess
-            expected-sender: ST1PQHQKV0RJXZFY1DGX8MNSNYVE3VGZJSRTPGZGM
-            cost: 65460
-            path: contracts/rolesAccess.clar
-            anchor-block-only: true
-            clarity-version: 1
-        - contract-publish:
             contract-name: accessNFT
             expected-sender: ST1PQHQKV0RJXZFY1DGX8MNSNYVE3VGZJSRTPGZGM
             cost: 10600
@@ -40,7 +33,14 @@ plan:
         - contract-publish:
             contract-name: tokenAccess
             expected-sender: ST1PQHQKV0RJXZFY1DGX8MNSNYVE3VGZJSRTPGZGM
-            cost: 68310
+            cost: 69130
             path: contracts/tokenAccess.clar
+            anchor-block-only: true
+            clarity-version: 1
+        - contract-publish:
+            contract-name: rolesAccess
+            expected-sender: ST1PQHQKV0RJXZFY1DGX8MNSNYVE3VGZJSRTPGZGM
+            cost: 66760
+            path: contracts/rolesAccess.clar
             anchor-block-only: true
             clarity-version: 1
