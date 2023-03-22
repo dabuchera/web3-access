@@ -62,7 +62,7 @@
 ;; ------------------------------
 
 ;; A function to change the contract-operable variable
-(define-private (change-contract-operable)
+(define-public (change-contract-operable)
     (begin
         (try! (check-contract-owner))
         (if (is-eq (var-get contract-operable) u1)

@@ -2,6 +2,8 @@
 
 This prototype was developed for the [EC3 2023](https://ec-3.org/conference2023/) conference paper. You can find the paper [here]().
 
+We also took [2nd place](https://building-on-btc-hack.devpost.com/project-gallery) with this prototype at the [Building on Bitcoin Hackathon](https://building-on-btc-hack.devpost.com/?ref_feature=challenge&ref_medium=your-open-hackathons&ref_content=Submissions+open).
+
 The prototype demonstrates how to use role-based and token-based smart contract access control for material passport data in the built environment. The data is stored off-chain using a data storage protocol called [Gaia](https://github.com/stacks-network/gaia).
 
 Follow the instructions below to test the prototype.
