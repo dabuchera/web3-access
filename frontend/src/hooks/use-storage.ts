@@ -85,12 +85,16 @@ export const useStorage = () => {
             const dataAccessors = await listDataAccessors(element.url)
             const listAccessorsNFT = await listAccessNFT(element.url)
             // If current User does not have Smart Contract Permission -> accessControl = "private"
-            if (!dataAccessors.includes(userAddress) && element.userAddress !== userAddress) {
+            if (dataAccessors.includes(userAddress) && element.userAddress !== userAddress) {
               element.accessControl = 'private'
             }
             if (_.intersection(accessNFTBalance, listAccessorsNFT).length === 0 && element.userAddress !== userAddress) {
               element.accessControl = 'private'
             }
+            console.log(dataAccessors.includes(userAddress))
+            console.log(element.userAddress !== userAddress)
+            console.log(_.intersection(accessNFTBalance, listAccessorsNFT).length === 0)
+            console.log(element.userAddress !== userAddress)
             console.log(element.path)
             console.log(dataAccessors)
             console.log('listAccessorsNFT')
