@@ -1,24 +1,20 @@
-import { useAuth } from './use-auth'
-import { Storage } from '@stacks/storage'
-import { AccessControl, IPrivateFile, IPublicFile, PrivateMetadataFile, PublicMetadataFile, returnObject } from '@/types/storage'
-import { useState } from 'react'
-import useLoading from './use-loading'
-import { useToast } from '@chakra-ui/react'
-import { StacksNetwork, StacksTestnet, StacksMocknet } from '@stacks/network'
-import {
-  callReadOnlyFunction,
-  stringAsciiCV,
-  uintCV,
-  cvToValue,
-  standardPrincipalCV,
-  NonFungibleConditionCode,
-  createAssetInfo,
-  makeStandardNonFungiblePostCondition,
-  PostConditionMode,
-} from '@stacks/transactions'
-import { contractOwnerAddress, appDetails } from '@/lib/constants'
+import { useState } from 'react';
+import * as _ from 'underscore';
 
-import * as _ from 'underscore'
+import { appDetails, contractOwnerAddress } from '@/lib/constants';
+import {
+    AccessControl, IPrivateFile, IPublicFile, PrivateMetadataFile, PublicMetadataFile, returnObject
+} from '@/types/storage';
+import { useToast } from '@chakra-ui/react';
+import { StacksMocknet, StacksNetwork, StacksTestnet } from '@stacks/network';
+import { Storage } from '@stacks/storage';
+import {
+    callReadOnlyFunction, createAssetInfo, cvToValue, makeStandardNonFungiblePostCondition,
+    NonFungibleConditionCode, PostConditionMode, standardPrincipalCV, stringAsciiCV, uintCV
+} from '@stacks/transactions';
+
+import { useAuth } from './use-auth';
+import useLoading from './use-loading';
 
 const PRIVATE_METADATA_FILE_PATH = '.private/metadata.json'
 const PUBLIC_METADATA_FILE_PATH = 'https://api.jsonbin.io/v3/b/639af46101a72b59f231285b?meta=false'
@@ -82,18 +78,33 @@ export const useStorage = () => {
         if (Object.prototype.hasOwnProperty.call(resOverview.files, key)) {
           const element = resOverview.files[key]
           if (element && element.accessControl === 'shared') {
+            // ********** name of element **********
+            console.log('********** name of element **********')
+            console.log(element.path)
+            // If current User is Owner -> abort and return accessControl = "shared"
+            if (element.userAddress === userAddress) {
+              console.log("Current User is Owner -> element.accessControl = 'shared'")
+              continue // skip this iteration and go to the next one
+            }
             const dataAccessors = await listDataAccessors(element.url)
             const listAccessorsNFT = await listAccessNFT(element.url)
             // If current User does not have Smart Contract Permission -> accessControl = "private"
-            if (!dataAccessors.includes(userAddress) && element.userAddress !== userAddress) {
-              if (_.intersection(accessNFTBalance, listAccessorsNFT).length === 0 && element.userAddress !== userAddress) {
-                element.accessControl = 'private'
-              }
+            // if (dataAccessors.length !== 0) {
+            if (!dataAccessors.includes(userAddress) && _.intersection(accessNFTBalance, listAccessorsNFT).length === 0) {
+              console.log("Access Control -> element.accessControl = 'private'")
+              element.accessControl = 'private'
             }
-            console.log("is not data accessor", !dataAccessors.includes(userAddress))
-            console.log("is not owner", element.userAddress !== userAddress)
-            console.log("does not own access NFT", _.intersection(accessNFTBalance, listAccessorsNFT).length === 0)
-            console.log(element.path)
+            // }
+            // if (!dataAccessors.includes(userAddress) && element.userAddress !== userAddress) {
+            // if (_.intersection(accessNFTBalance, listAccessorsNFT).length === 0) {
+            //   console.log("Token-based -> element.accessControl = 'private'")
+            //   element.accessControl = 'private'
+            // }
+            // }
+            console.log('is not data accessor', !dataAccessors.includes(userAddress))
+            console.log('is not owner', element.userAddress !== userAddress)
+            console.log('does not own access NFT', _.intersection(accessNFTBalance, listAccessorsNFT).length === 0)
+            console.log('dataAccessors')
             console.log(dataAccessors)
             console.log('listAccessorsNFT')
             console.log(listAccessorsNFT)
@@ -210,7 +221,7 @@ export const useStorage = () => {
   // }
 
   // Get File which belongs to logged in user
-  const getFile = async (url: string, doDecrypt: boolean = true) => {
+  const getFile = async (url: string, doDecrypt: boolean = true, accessControl: AccessControl) => {
     console.log('getFile')
     // Check if File belongs to logged in user
     const userAddress = useSTXAddress()
@@ -300,14 +311,25 @@ export const useStorage = () => {
           else {
             // console.log("The response wasn't a JSON object -> A file")
             console.log('Else Loop')
-            return response.text().then((text) => {
+            return response.text().then(async (text) => {
+              console.log(text)
               // Check if file is encrypted
               if (typeof text === 'string' || (text as any) instanceof String) {
                 if (text.includes('cipherText')) {
-                  // Check if Smart Contract Allowance there
+                  // Check if Smart Contract Allowance there -> Do it over function parameter accessControl
 
-                  // console.log(res.includes('cipherText'))
-                  return '*******'
+                  if (accessControl === 'shared') {
+                    return userSession
+                      .decryptContent(text, {
+                        privateKey: process.env.DAPP_PRIVATE_KEY,
+                      })
+                      .then((res) => {
+                        if (!res) return '*******'
+                        return res
+                      })
+                  } else {
+                    return '*******'
+                  }
                 }
               }
               // console.log(text)
@@ -315,27 +337,6 @@ export const useStorage = () => {
             })
           }
         })
-
-        // return await fetch(url)
-        //   .then((response) => {
-        //     if (resOverview.files[filename].isPublic) {
-        //       return response.text
-        //     }
-        //     return response.json()
-        //   })
-        //   .then((data) => {
-        //     console.log(data)
-        //     const res = JSON.stringify(data)
-        //     // Hier die Decryption machen
-        //     // Check if file is encrypted
-        //     if (typeof res === 'string' || res instanceof String) {
-        //       if (res.includes('cipherText')) {
-        //         // console.log(res.includes('cipherText'))
-        //         return '*******'
-        //       }
-        //     }
-        //     return data
-        //   })
       } catch (err) {
         console.error(err)
       }
@@ -393,17 +394,23 @@ export const useStorage = () => {
     if (!publicMetadata || !userAddress) {
       return undefined
     } else {
+      const accessNFTBalance = await getAccessNFTBalance(userAddress)
       // Change AccessControl according to Smart Contract Informations
+      // Here use the same as in refreshMetadata()
       for (const key in publicMetadata.files) {
         if (Object.prototype.hasOwnProperty.call(publicMetadata.files, key)) {
           const element = publicMetadata.files[key]
           if (element && element.accessControl === 'shared') {
+            if (element.userAddress === userAddress) {
+              continue // skip this iteration and go to the next one
+            }
             const dataAccessors = await listDataAccessors(element.url)
+            const listAccessorsNFT = await listAccessNFT(element.url)
             // If current User does not have Smart Contract Permission -> accessControl = "private"
-            if (!dataAccessors.includes(userAddress) && element.userAddress !== userAddress) {
+            if (!dataAccessors.includes(userAddress) && _.intersection(accessNFTBalance, listAccessorsNFT).length === 0) {
+              console.log("Access Control -> element.accessControl = 'private'")
               element.accessControl = 'private'
             }
-            // console.log(dataAccessors.includes(userAddress))
           }
         }
       }
@@ -506,7 +513,7 @@ export const useStorage = () => {
     const file = existingMetadata.files[path]
     // console.log(file)
 
-    const data = await getFile(path, !file.isPublic)
+    const data = await getFile(path, !file.isPublic, file.accessControl)
     // console.log(data)
 
     //Allow sharing

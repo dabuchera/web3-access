@@ -1,15 +1,18 @@
-import { useStorage } from '@/hooks/use-storage'
-import { Box, Heading, Spinner, VStack, Tooltip, Icon, Text, IconButton, Button, Badge, useClipboard, useToast } from '@chakra-ui/react'
-import { Type, FileText, Copy, Check, Download } from 'react-feather'
-import { NextPage } from 'next'
-import { useRouter } from 'next/router'
-import { useEffect, useState } from 'react'
-import { NextSeo } from 'next-seo'
-import useLoading from '@/hooks/use-loading'
-import { IPrivateFile, IPublicFile, isPublicFile } from '@/types/storage'
-import { useAuth } from '@/hooks/use-auth'
+import { NextPage } from 'next';
+import { NextSeo } from 'next-seo';
+import { useRouter } from 'next/router';
+import { useEffect, useState } from 'react';
+import { Check, Copy, Download, FileText, Type } from 'react-feather';
+import * as _ from 'underscore';
 
-import * as _ from 'underscore'
+import { useAuth } from '@/hooks/use-auth';
+import useLoading from '@/hooks/use-loading';
+import { useStorage } from '@/hooks/use-storage';
+import { IPrivateFile, IPublicFile, isPublicFile } from '@/types/storage';
+import {
+    Badge, Box, Button, Heading, Icon, IconButton, Spinner, Text, Tooltip, useClipboard, useToast,
+    VStack
+} from '@chakra-ui/react';
 
 const ObjectPage: NextPage = () => {
   const {
@@ -69,7 +72,7 @@ const ObjectPage: NextPage = () => {
         return null
       }
 
-      const data = await getFile(metadata.url, metadata.encrypted)
+      const data = await getFile(metadata.url, metadata.encrypted, metadata.accessControl)
 
       const blob = new Blob([data as ArrayBuffer], {
         type: 'application/octet-stream',
@@ -95,6 +98,8 @@ const ObjectPage: NextPage = () => {
           setMetadata(metadata)
         }
 
+        console.log(metadata)
+
         // isPublicFile(metadata) && STXAddress === metadata.userAddress
         // console.log(isPublicFile(metadata))
         // console.log(STXAddress)
@@ -102,7 +107,7 @@ const ObjectPage: NextPage = () => {
 
         // Whether the correct data is displayed or not is checked in the use-storage.ts
         if (metadata && metadata.isString) {
-          const data = await getFile(metadata.url, metadata.encrypted)
+          const data = await getFile(metadata.url, metadata.encrypted, metadata.accessControl)
           // console.log(data)
           setText(data as string)
         }
