@@ -35,6 +35,11 @@ const ObjectPage: NextPage = () => {
       const dataAccessors = await listDataAccessors(metadata.url)
       const listAccessorsNFT = await listAccessNFT(metadata.url)
       const accessNFTBalance = await getAccessNFTBalance(STXAddress)
+
+      // For testing
+      // const data1 = await getFile(metadata.url, metadata.encrypted, metadata.accessControl)
+      // console.log(data1)
+
       // If current User does not have Smart Contract Permission -> Toast
       // metadata is of type IPublicFile
       if (!dataAccessors.includes(STXAddress) && metadata.userAddress !== STXAddress && metadata.accessControl === 'shared') {
@@ -98,6 +103,7 @@ const ObjectPage: NextPage = () => {
           setMetadata(metadata)
         }
 
+        console.log('metadata')
         console.log(metadata)
 
         // isPublicFile(metadata) && STXAddress === metadata.userAddress
@@ -106,6 +112,7 @@ const ObjectPage: NextPage = () => {
         // console.log(metadata.userAddress)
 
         // Whether the correct data is displayed or not is checked in the use-storage.ts
+        // Here we also differentiate between text and file -> metadata.isString
         if (metadata && metadata.isString) {
           const data = await getFile(metadata.url, metadata.encrypted, metadata.accessControl)
           // console.log(data)

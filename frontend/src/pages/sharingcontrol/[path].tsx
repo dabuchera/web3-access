@@ -1,54 +1,26 @@
-import { useStorage } from '@/hooks/use-storage'
+import { url } from 'inspector';
+import { NextPage } from 'next';
+import { useRouter } from 'next/router';
+import { ChangeEvent, MutableRefObject, useEffect, useRef, useState } from 'react';
+import { Share2 } from 'react-feather';
+
+import { useAuth } from '@/hooks/use-auth';
+import useLoading from '@/hooks/use-loading';
+import { useStorage } from '@/hooks/use-storage';
+import { appDetails, contractOwnerAddress } from '@/lib/constants';
+import { IPrivateFile, IPublicFile } from '@/types/storage';
 import {
-  Box,
-  Heading,
-  Spinner,
-  VStack,
-  Tooltip,
-  Icon,
-  Text,
-  IconButton,
-  Button,
-  Badge,
-  useClipboard,
-  Flex,
-  AlertDialog,
-  AlertDialogBody,
-  AlertDialogContent,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogOverlay,
-  Input,
-  NumberDecrementStepper,
-  NumberIncrementStepper,
-  NumberInput,
-  NumberInputField,
-  NumberInputStepper,
-  useDisclosure,
-  useToast,
-} from '@chakra-ui/react'
-import { Share2 } from 'react-feather'
-import { NextPage } from 'next'
-import { useRouter } from 'next/router'
-import { ChangeEvent, MutableRefObject, useEffect, useRef, useState } from 'react'
-import useLoading from '@/hooks/use-loading'
-import { IPrivateFile, IPublicFile } from '@/types/storage'
-import { contractOwnerAddress, appDetails } from '@/lib/constants'
-import { ContractCallRegularOptions, openContractCall } from '@stacks/connect'
-import { url } from 'inspector'
-import { 
-  callReadOnlyFunction, 
-  stringAsciiCV, 
-  uintCV, 
-  cvToValue, 
-  standardPrincipalCV,
-  NonFungibleConditionCode,
-  createAssetInfo,
-  makeStandardNonFungiblePostCondition,
-  PostConditionMode
-} from '@stacks/transactions'
-import { StacksNetwork, StacksTestnet, StacksMocknet } from '@stacks/network'
-import { useAuth } from '@/hooks/use-auth'
+    AlertDialog, AlertDialogBody, AlertDialogContent, AlertDialogFooter, AlertDialogHeader,
+    AlertDialogOverlay, Badge, Box, Button, Flex, Heading, Icon, IconButton, Input,
+    NumberDecrementStepper, NumberIncrementStepper, NumberInput, NumberInputField,
+    NumberInputStepper, Spinner, Text, Tooltip, useClipboard, useDisclosure, useToast, VStack
+} from '@chakra-ui/react';
+import { ContractCallRegularOptions, openContractCall } from '@stacks/connect';
+import { StacksMocknet, StacksNetwork, StacksTestnet } from '@stacks/network';
+import {
+    callReadOnlyFunction, createAssetInfo, cvToValue, makeStandardNonFungiblePostCondition,
+    NonFungibleConditionCode, PostConditionMode, standardPrincipalCV, stringAsciiCV, uintCV
+} from '@stacks/transactions';
 
 const ObjectPage: NextPage = () => {
   const {
@@ -680,7 +652,7 @@ const ObjectPage: NextPage = () => {
               transfer
             </Button>
             </Box>
-            <AlertDialog isOpen={is_6DialogOpen} onClose={on_5DialogClose} leastDestructiveRef={_6DialogCancelRef}>
+            <AlertDialog isOpen={is_6DialogOpen} onClose={on_6DialogClose} leastDestructiveRef={_6DialogCancelRef}>
               <AlertDialogOverlay>
                 <AlertDialogContent>
                   <AlertDialogHeader>Transaction Execution</AlertDialogHeader>

@@ -227,22 +227,17 @@ export const useStorage = () => {
     const userAddress = useSTXAddress()
     const resOverview = await getOverviewFile()
 
+    console.log(resOverview)
+
     if (!resOverview) {
       console.log('Cannot get File')
       return null
     }
 
-    console.log('url: ' + url)
-    const dataAccessors = await listDataAccessors(url)
-    console.log('dataAccessors')
-    console.log(dataAccessors)
-    // console.log('YOURS?')
-    // console.log(resOverview?.files)
-    // console.log(userAddress === resOverview.files[filename].userAddress)
-
     var n = url.lastIndexOf('/')
     var filename = url.substring(n + 1)
 
+    console.log('url: ' + url)
     console.log('filename: ' + filename)
     // console.log(doDecrypt)
 
@@ -272,9 +267,10 @@ export const useStorage = () => {
       }
       return res
     }
-    //*********************** File DOES NOT belongs to logged in user ***********************//
+    //*********************** File DOES NOT belong to logged in user ***********************//
     else {
       console.log('File DOES NOT belongs to logged in user')
+      console.log()
       try {
         return await fetch(url).then((response) => {
           const contentType = response.headers.get('content-type')
@@ -283,6 +279,7 @@ export const useStorage = () => {
           // The response was a JSON object
           // Process your data as a JavaScript object
           // Encrypted Text
+          // Possible public File
           if (contentType && contentType.indexOf('application/json') !== -1) {
             return response.json().then((data) => {
               console.log('data')
@@ -304,12 +301,8 @@ export const useStorage = () => {
             })
           }
           // File
-          // The response wasn't a JSON object -> A file
-          // Process your text as a String
-          // Public Text
-          // Shared Text
+          // The response wasn't a JSON object -> An Ecrypted file or Public Text or Shared Text
           else {
-            // console.log("The response wasn't a JSON object -> A file")
             console.log('Else Loop')
             return response.text().then(async (text) => {
               console.log(text)
@@ -317,7 +310,7 @@ export const useStorage = () => {
               if (typeof text === 'string' || (text as any) instanceof String) {
                 if (text.includes('cipherText')) {
                   // Check if Smart Contract Allowance there -> Do it over function parameter accessControl
-
+                  console.log('here')
                   if (accessControl === 'shared') {
                     return userSession
                       .decryptContent(text, {
@@ -332,7 +325,7 @@ export const useStorage = () => {
                   }
                 }
               }
-              // console.log(text)
+              console.log(text)
               return text
             })
           }
