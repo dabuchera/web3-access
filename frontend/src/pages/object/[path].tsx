@@ -32,9 +32,9 @@ const ObjectPage: NextPage = () => {
   const handleFileDownload = async () => {
     startDownloadLoading()
     if (metadata && STXAddress) {
-      const dataAccessors = await listDataAccessors(metadata.url)
-      const listAccessorsNFT = await listAccessNFT(metadata.url)
-      const accessNFTBalance = await getAccessNFTBalance(STXAddress)
+      // const dataAccessors = await listDataAccessors(metadata.url)
+      // const listAccessorsNFT = await listAccessNFT(metadata.url)
+      // const accessNFTBalance = await getAccessNFTBalance(STXAddress)
 
       // For testing
       // const data1 = await getFile(metadata.url, metadata.encrypted, metadata.accessControl)
@@ -42,32 +42,42 @@ const ObjectPage: NextPage = () => {
 
       // If current User does not have Smart Contract Permission -> Toast
       // metadata is of type IPublicFile
-      if (!dataAccessors.includes(STXAddress) && metadata.userAddress !== STXAddress && metadata.accessControl === 'shared') {
-        toast({
-          status: 'error',
-          title: 'Missing Permission',
-          description: 'You do not have the permission to download this file',
-        })
-        stopDownloadLoading()
-        return null
-        //@ts-ignore
-      }
-      if (
-        _.intersection(accessNFTBalance, listAccessorsNFT).length === 0 &&
-        metadata.userAddress !== STXAddress &&
-        metadata.accessControl === 'shared'
-      ) {
-        toast({
-          status: 'error',
-          title: 'Missing Permission',
-          description: 'You do not have the permission to download this file',
-        })
-        stopDownloadLoading()
-        return null
-        //@ts-ignore
-      }
+      // if (!dataAccessors.includes(STXAddress) && metadata.userAddress !== STXAddress && metadata.accessControl === 'shared') {
+      //   toast({
+      //     status: 'error',
+      //     title: 'Missing Permission',
+      //     description: 'You do not have the permission to download this file',
+      //   })
+      //   stopDownloadLoading()
+      //   return null
+      //   //@ts-ignore
+      // }
+      // if (
+      //   _.intersection(accessNFTBalance, listAccessorsNFT).length === 0 &&
+      //   metadata.userAddress !== STXAddress &&
+      //   metadata.accessControl === 'shared'
+      // ) {
+      //   toast({
+      //     status: 'error',
+      //     title: 'Missing Permission',
+      //     description: 'You do not have the permission to download this file',
+      //   })
+      //   stopDownloadLoading()
+      //   return null
+      //   //@ts-ignore
+      // }
 
-      if (metadata.userAddress !== STXAddress && metadata.accessControl === 'private') {
+      // if (metadata.userAddress !== STXAddress && metadata.accessControl === 'private') {
+      //   toast({
+      //     status: 'error',
+      //     title: 'Missing Permission',
+      //     description: 'You do not have the permission to download this file',
+      //   })
+      //   stopDownloadLoading()
+      //   return null
+      // }
+
+      if (metadata.accessControl === 'private') {
         toast({
           status: 'error',
           title: 'Missing Permission',
