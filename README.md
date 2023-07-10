@@ -1,6 +1,6 @@
 # Web3 Data Access Prototype
 
-This prototype was developed for the [EC3 2023](https://ec-3.org/conference2023/) conference paper. You can find the paper [here]().
+This prototype was developed for the [EC3 2023](https://ec-3.org/conference2023/) conference paper. You can find the paper [here](https://ec-3.org/publications/conference/paper/?id=EC32023_217).
 
 We also took [2nd place](https://building-on-btc-hack.devpost.com/project-gallery) with this prototype at the [Building on Bitcoin Hackathon](https://building-on-btc-hack.devpost.com/?ref_feature=challenge&ref_medium=your-open-hackathons&ref_content=Submissions+open).
 
